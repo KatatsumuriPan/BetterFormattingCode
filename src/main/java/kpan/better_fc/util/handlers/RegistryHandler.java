@@ -2,6 +2,7 @@ package kpan.better_fc.util.handlers;
 
 import kpan.better_fc.ModMain;
 import kpan.better_fc.config.ConfigHandler;
+import kpan.better_fc.implementations.FormattingCodeInit;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -18,6 +19,7 @@ public class RegistryHandler {
 	}
 
 	public static void initRegistries() {
+		FormattingCodeInit.init();
 	}
 
 	public static void postInitRegistries() {

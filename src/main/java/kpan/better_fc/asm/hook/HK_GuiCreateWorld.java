@@ -1,0 +1,21 @@
+package kpan.better_fc.asm.hook;
+
+import kpan.better_fc.api.RenderFontUtil;
+import kpan.better_fc.asm.tf.EnumSectionSignMode;
+import net.minecraft.util.text.TextFormatting;
+
+@SuppressWarnings("unused")
+public class HK_GuiCreateWorld {
+	public static int getWorldNameMaxLength() {
+		return 32500;
+	}
+	public static EnumSectionSignMode getSectionSignMode() {
+		return EnumSectionSignMode.EDIT;
+	}
+	public static String appendResetCode(String text) {
+		return text + TextFormatting.RESET;
+	}
+	public static String removeFormattingCodes(String text) {
+		return RenderFontUtil.removeFormat(text);
+	}
+}
