@@ -39,6 +39,13 @@ public class StencilTextRenderer implements IStringRenderEndListener {
 		renderer.accept(context);
 		GL11.glDisable(GL11.GL_STENCIL_TEST);
 
+		GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+		GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, context.framebufferObject);
+		GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, framebuffer.framebufferObject);
+		int w = GLStateManagerUtil.viewportWidth;
+		int h = GLStateManagerUtil.viewportHeight;
+		GL30.glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL11.GL_DEPTH_BUFFER_BIT, GL11.GL_NEAREST);
+
 		OpenGlHelper.glBindFramebuffer(OpenGlHelper.GL_FRAMEBUFFER, context.framebufferObject);
 		GlStateManager.matrixMode(GL11.GL_MODELVIEW);
 		GlStateManager.pushMatrix();
@@ -93,8 +100,12 @@ public class StencilTextRenderer implements IStringRenderEndListener {
 	}
 
 	public void clear(RenderingStringContext context) {
-		if (framebuffer == null) {
-			framebuffer = new Framebuffer(GLStateManagerUtil.viewportWidth, GLStateManagerUtil.viewportHeight, true);
+		if (framebuffer == null || GLStateManagerUtil.viewportWidth > framebuffer.framebufferWidth || GLStateManagerUtil.viewportHeight > framebuffer.framebufferHeight) {
+			int w = Math.max(GLStateManagerUtil.viewportWidth, Minecraft.getMinecraft().displayWidth);
+			int h = Math.max(GLStateManagerUtil.viewportHeight, Minecraft.getMinecraft().displayHeight);
+			if (framebuffer != null)
+				framebuffer.deleteFramebuffer();
+			framebuffer = new Framebuffer(w, h, true);
 			framebuffer.setFramebufferColor(0.0F, 0.0F, 0.0F, 0.0F);
 			framebuffer.enableStencil();
 		}
@@ -103,11 +114,9 @@ public class StencilTextRenderer implements IStringRenderEndListener {
 		GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
 		GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, framebuffer.framebufferObject);
 		GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, context.framebufferObject);
-		int x = GLStateManagerUtil.viewportX;
-		int y = GLStateManagerUtil.viewportY;
 		int w = GLStateManagerUtil.viewportWidth;
 		int h = GLStateManagerUtil.viewportHeight;
-		GL30.glBlitFramebuffer(x, y, w, h, x, y, w, h, GL11.GL_DEPTH_BUFFER_BIT, GL11.GL_NEAREST);
+		GL30.glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL11.GL_DEPTH_BUFFER_BIT, GL11.GL_NEAREST);
 		OpenGlHelper.glBindFramebuffer(OpenGlHelper.GL_FRAMEBUFFER, context.framebufferObject);
 	}
 }
