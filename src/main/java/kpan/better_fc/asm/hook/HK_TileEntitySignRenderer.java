@@ -22,16 +22,16 @@ public class HK_TileEntitySignRenderer {
 		RenderHelper.disableStandardItemLighting();
 		if (HK_GuiEditSign.editLine == j) {
 			HK_FontRenderer.startEditMode();
-			float w = RenderFontUtil.toIntWidthIfForced(RenderFontUtil.getStringWidthFloat(fontrenderer, s));
+			float w = RenderFontUtil.getStringWidthFloat(fontrenderer, s);
 			RenderFontUtil.drawString(fontrenderer, s, -w / 2, y, 0);
 			HK_FontRenderer.endEditMode();
 			if (j == te.lineBeingEdited) {
-				RenderFontUtil.drawString(fontrenderer, "> ", -w / 2 - RenderFontUtil.toIntWidthIfForced(RenderFontUtil.getStringWidthFloat(fontrenderer, "> ")), y, 0);
+				RenderFontUtil.drawString(fontrenderer, "> ", -w / 2 - RenderFontUtil.getStringWidthFloat(fontrenderer, "> "), y, 0);
 				RenderFontUtil.drawString(fontrenderer, " <", w / 2, y, 0);
 			}
 		} else {
 			int end = RenderFontUtil.getEndIndexExcOfTrimmedSubString(fontrenderer, s, 0, 95);//ピッタリは96だけど斜めから見るとちょっとはみ出る(なんなら95もわずかにはみ出る)
-			float w = RenderFontUtil.toIntWidthIfForced(RenderFontUtil.getSubStringWidthFloat(fontrenderer, s, 0, end));
+			float w = RenderFontUtil.getSubStringWidthFloat(fontrenderer, s, 0, end);
 			RenderFontUtil.drawSubString(fontrenderer, s, 0, end, -w / 2, y, 0);
 		}
 		if (isLightingEnabled)

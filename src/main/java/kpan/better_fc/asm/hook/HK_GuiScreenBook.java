@@ -27,13 +27,13 @@ public class HK_GuiScreenBook {
 
 		if (self.bookGettingSigned) {
 			String editTitle = I18n.format("book.editTitle");
-			float width_editTitle = RenderFontUtil.toIntWidthIfForced(RenderFontUtil.getStringWidthFloat(self.fontRenderer, editTitle));
+			float width_editTitle = RenderFontUtil.getStringWidthFloat(self.fontRenderer, editTitle);
 			RenderFontUtil.drawString(self.fontRenderer, editTitle, startX + 36 + (116 - width_editTitle) / 2, 34, 0);
 			String title = self.bookTitle;
 
 
 			HK_FontRenderer.startEditMode();
-			float width_title = RenderFontUtil.toIntWidthIfForced(RenderFontUtil.getStringWidthFloat(self.fontRenderer, title));
+			float width_title = RenderFontUtil.getStringWidthFloat(self.fontRenderer, title);
 			float x = RenderFontUtil.drawString(self.fontRenderer, title, startX + 36 + (116 - width_title) / 2, 50, 0);
 			HK_FontRenderer.endEditMode();
 			if (self.bookIsUnsigned) {
@@ -46,7 +46,7 @@ public class HK_GuiScreenBook {
 				RenderFontUtil.drawString(self.fontRenderer, cursor, x, 50, 0, false);
 			}
 			String byAuthor = I18n.format("book.byAuthor", self.editingPlayer.getName());
-			float width_byAuthor = RenderFontUtil.toIntWidthIfForced(RenderFontUtil.getStringWidthFloat(self.fontRenderer, byAuthor));
+			float width_byAuthor = RenderFontUtil.getStringWidthFloat(self.fontRenderer, byAuthor);
 			RenderFontUtil.drawString(self.fontRenderer, TextFormatting.DARK_GRAY + byAuthor, startX + 36 + (116 - width_byAuthor) / 2, 60, 0);
 			String finalizeWarning = I18n.format("book.finalizeWarning");
 			RenderFontUtil.drawSplitString(self.fontRenderer, finalizeWarning, startX + 36, 82, 116, 0);
@@ -74,7 +74,7 @@ public class HK_GuiScreenBook {
 				self.cachedPage = self.currPage;
 			}
 
-			float j1 = RenderFontUtil.toIntWidthIfForced(RenderFontUtil.getStringWidthFloat(self.fontRenderer, pageIndicator));
+			float j1 = RenderFontUtil.getStringWidthFloat(self.fontRenderer, pageIndicator);
 			RenderFontUtil.drawString(self.fontRenderer, pageIndicator, startX - j1 + 192 - 44, 18, 0);
 
 			if (self.cachedComponents == null) {

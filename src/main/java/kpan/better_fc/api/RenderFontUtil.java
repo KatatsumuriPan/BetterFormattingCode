@@ -42,7 +42,6 @@ public class RenderFontUtil {
 	private static List<IRenderingCharEffect> validDisplay = null;
 	private static List<IRenderingCharEffect> invalidDisplay = null;
 	public static final List<IRenderingCharEffect> appliedEffects = new ArrayList<>();
-	public static boolean useIntWidth = true;
 	public static boolean isEditMode = false;
 
 	public static List<IRenderingCharEffect> getValidDisplayEffects() {
@@ -241,12 +240,12 @@ public class RenderFontUtil {
 							return;
 						char ch = context.originalText.charAt(i);
 						if (context.isEdit) {
-							context.posX += prepareAndRenderChar(context, ch, useIntWidth);
+							context.posX += prepareAndRenderChar(context, ch);
 						} else {
 							CharArrayRingList ringList = context.getRingList();
 							ringList.addLast(ch);
 							while (!ringList.isEmpty()) {
-								context.posX += prepareAndRenderChar(context, ringList.pollFirst(), useIntWidth);
+								context.posX += prepareAndRenderChar(context, ringList.pollFirst());
 							}
 						}
 					}
@@ -257,21 +256,21 @@ public class RenderFontUtil {
 					GlStateManager.color(context.fontRenderer.red, context.fontRenderer.green, context.fontRenderer.blue, context.fontRenderer.alpha);
 					//§の次が無い
 					if (context.isEdit)
-						context.posX += renderChar(context.fontRenderer, '§', context.posX, context.posY, getInvalidDisplayEffects(), context.asShadow, useIntWidth);
+						context.posX += renderChar(context.fontRenderer, '§', context.posX, context.posY, getInvalidDisplayEffects(), context.asShadow);
 					else
-						context.posX += renderChar(context.fontRenderer, '§', context.posX, context.posY, Collections.emptyList(), context.asShadow, useIntWidth);
+						context.posX += renderChar(context.fontRenderer, '§', context.posX, context.posY, Collections.emptyList(), context.asShadow);
 				}
 				case ESCAPED_SECTION_SIGN -> {
 					if (beginIndex >= wholeEndIndexExcl)
 						return;
 					if (context.isEdit) {
 						GlStateManager.color(context.fontRenderer.red, context.fontRenderer.green, context.fontRenderer.blue, context.fontRenderer.alpha);
-						context.posX += renderChar(context.fontRenderer, '§', context.posX, context.posY, getValidDisplayEffects(), context.asShadow, useIntWidth);
+						context.posX += renderChar(context.fontRenderer, '§', context.posX, context.posY, getValidDisplayEffects(), context.asShadow);
 						if (beginIndex + 1 >= wholeEndIndexExcl)
 							return;
-						context.posX += renderChar(context.fontRenderer, '§', context.posX, context.posY, getValidDisplayEffects(), context.asShadow, useIntWidth);
+						context.posX += renderChar(context.fontRenderer, '§', context.posX, context.posY, getValidDisplayEffects(), context.asShadow);
 					} else {
-						context.posX += prepareAndRenderChar(context, '§', useIntWidth);
+						context.posX += prepareAndRenderChar(context, '§');
 					}
 				}
 				case FORMATTING_CODE_UNTERMINATED_LONGKEY, FORMATTING_CODE_UNKNOWN -> {
@@ -286,13 +285,13 @@ public class RenderFontUtil {
 							for (int i = Math.max(beginIndex, wholeBeginIndex); i < endIndexExcl; i++) {
 								if (i >= wholeEndIndexExcl)
 									return;
-								context.posX += renderChar(context.fontRenderer, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects(), context.asShadow, useIntWidth);
+								context.posX += renderChar(context.fontRenderer, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects(), context.asShadow);
 							}
 						} else {
 							CharArrayRingList ringList = context.getRingList();
 							while (!ringList.isEmpty()) {
 								char c1 = ringList.pollFirst();
-								context.posX += prepareAndRenderChar(context, c1, useIntWidth);
+								context.posX += prepareAndRenderChar(context, c1);
 							}
 						}
 					} else {
@@ -307,7 +306,7 @@ public class RenderFontUtil {
 						for (int i = Math.max(beginIndex, wholeBeginIndex); i < beginIndex + 1 + markerNum; i++) {
 							if (i >= wholeEndIndexExcl)
 								return;
-							context.posX += renderChar(context.fontRenderer, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects(), context.asShadow, useIntWidth);
+							context.posX += renderChar(context.fontRenderer, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects(), context.asShadow);
 						}
 					} else {
 						if (type == Type.FORMATTING_RANGE_UNTERMINATED) {
@@ -315,7 +314,7 @@ public class RenderFontUtil {
 							for (int i = Math.max(beginIndex, wholeBeginIndex); i < beginIndex + 1 + markerNum; i++) {
 								if (i >= wholeEndIndexExcl)
 									return;
-								context.posX += renderChar(context.fontRenderer, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects(), context.asShadow, useIntWidth);
+								context.posX += renderChar(context.fontRenderer, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects(), context.asShadow);
 							}
 						}
 					}
@@ -328,7 +327,7 @@ public class RenderFontUtil {
 							for (int i = endIndexExcl - markerNum; i < endIndexExcl; i++) {
 								if (i >= wholeEndIndexExcl)
 									return;
-								context.posX += renderChar(context.fontRenderer, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects(), context.asShadow, useIntWidth);
+								context.posX += renderChar(context.fontRenderer, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects(), context.asShadow);
 							}
 						}
 					}
@@ -342,7 +341,7 @@ public class RenderFontUtil {
 			for (int i = Math.max(beginIndex, wholeBeginIndex); i < endIndexExcl; i++) {
 				if (i >= wholeEndIndexExcl)
 					return true;
-				context.posX += renderChar(context.fontRenderer, context.originalText.charAt(i), context.posX, context.posY, getInvalidDisplayEffects(), context.asShadow, useIntWidth);
+				context.posX += renderChar(context.fontRenderer, context.originalText.charAt(i), context.posX, context.posY, getInvalidDisplayEffects(), context.asShadow);
 			}
 			return false;
 		}
@@ -359,7 +358,7 @@ public class RenderFontUtil {
 							return new MeasuringResult(currentWidth, i);
 						char ch = context.originalText.charAt(i);
 						if (context.isEdit) {
-							float w = prepareAndGetCharWidth(context, ch, useIntWidth);
+							float w = prepareAndGetCharWidth(context, ch);
 							if (currentWidth + w > limitWidthIncl)
 								return new MeasuringResult(currentWidth, i);
 							currentWidth += w;
@@ -367,7 +366,7 @@ public class RenderFontUtil {
 							CharArrayRingList ringList = context.getRingList();
 							ringList.addLast(ch);
 							while (!ringList.isEmpty()) {
-								float w = prepareAndGetCharWidth(context, ringList.pollFirst(), useIntWidth);
+								float w = prepareAndGetCharWidth(context, ringList.pollFirst());
 								if (currentWidth + w > limitWidthIncl)
 									return new MeasuringResult(currentWidth, i);
 								currentWidth += w;
@@ -381,9 +380,9 @@ public class RenderFontUtil {
 					//§の次が無い
 					float w;
 					if (context.isEdit)
-						w = getCharWidthWithSpace(context.fontRenderer, '§', getInvalidDisplayEffects(), useIntWidth);
+						w = getCharWidthWithSpace(context.fontRenderer, '§', getInvalidDisplayEffects());
 					else
-						w = getCharWidthWithSpace(context.fontRenderer, '§', Collections.emptyList(), useIntWidth);
+						w = getCharWidthWithSpace(context.fontRenderer, '§', Collections.emptyList());
 					if (currentWidth + w > limitWidthIncl)
 						return new MeasuringResult(currentWidth, beginIndex);
 					currentWidth += w;
@@ -392,7 +391,7 @@ public class RenderFontUtil {
 					if (beginIndex >= wholeEndIndexExcl)
 						return new MeasuringResult(currentWidth, beginIndex);
 					if (context.isEdit) {
-						float w = getCharWidthWithSpace(context.fontRenderer, '§', getValidDisplayEffects(), useIntWidth);
+						float w = getCharWidthWithSpace(context.fontRenderer, '§', getValidDisplayEffects());
 						if (currentWidth + w > limitWidthIncl)
 							return new MeasuringResult(currentWidth, beginIndex);
 						currentWidth += w;
@@ -402,7 +401,7 @@ public class RenderFontUtil {
 							return new MeasuringResult(currentWidth, beginIndex + 1);
 						currentWidth += w;
 					} else {
-						float w = prepareAndGetCharWidth(context, '§', useIntWidth);
+						float w = prepareAndGetCharWidth(context, '§');
 						if (currentWidth + w > limitWidthIncl)
 							return new MeasuringResult(currentWidth, beginIndex);
 						currentWidth += w;
@@ -412,7 +411,7 @@ public class RenderFontUtil {
 					for (int i = Math.max(beginIndex, wholeBeginIndex); i < endIndexExcl; i++) {
 						if (i >= wholeEndIndexExcl)
 							return new MeasuringResult(currentWidth, i);
-						float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getInvalidDisplayEffects(), useIntWidth);
+						float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getInvalidDisplayEffects());
 						if (currentWidth + w > limitWidthIncl)
 							return new MeasuringResult(currentWidth, i);
 						currentWidth += w;
@@ -425,7 +424,7 @@ public class RenderFontUtil {
 							for (int i = Math.max(beginIndex, wholeBeginIndex); i < endIndexExcl; i++) {
 								if (i >= wholeEndIndexExcl)
 									return new MeasuringResult(currentWidth, i);
-								float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects(), useIntWidth);
+								float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects());
 								if (currentWidth + w > limitWidthIncl)
 									return new MeasuringResult(currentWidth, i);
 								currentWidth += w;
@@ -433,7 +432,7 @@ public class RenderFontUtil {
 						} else {
 							CharArrayRingList ringList = context.getRingList();
 							while (!ringList.isEmpty()) {
-								float w = prepareAndGetCharWidth(context, ringList.pollFirst(), useIntWidth);
+								float w = prepareAndGetCharWidth(context, ringList.pollFirst());
 								if (currentWidth + w > limitWidthIncl)
 									return new MeasuringResult(currentWidth, endIndexExcl);
 								currentWidth += w;
@@ -443,7 +442,7 @@ public class RenderFontUtil {
 						for (int i = Math.max(beginIndex, wholeBeginIndex); i < endIndexExcl; i++) {
 							if (i >= wholeEndIndexExcl)
 								return new MeasuringResult(currentWidth, i);
-							float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getInvalidDisplayEffects(), useIntWidth);
+							float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getInvalidDisplayEffects());
 							if (currentWidth + w > limitWidthIncl)
 								return new MeasuringResult(currentWidth, i);
 							currentWidth += w;
@@ -456,7 +455,7 @@ public class RenderFontUtil {
 						for (int i = Math.max(beginIndex, wholeBeginIndex); i < beginIndex + 1 + markerNum; i++) {
 							if (i >= wholeEndIndexExcl)
 								return new MeasuringResult(currentWidth, i);
-							float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects(), useIntWidth);
+							float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects());
 							if (currentWidth + w > limitWidthIncl)
 								return new MeasuringResult(currentWidth, i);
 							currentWidth += w;
@@ -466,7 +465,7 @@ public class RenderFontUtil {
 							for (int i = Math.max(beginIndex, wholeBeginIndex); i < beginIndex + 1 + markerNum; i++) {
 								if (i >= wholeEndIndexExcl)
 									return new MeasuringResult(currentWidth, i);
-								float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects(), useIntWidth);
+								float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects());
 								if (currentWidth + w > limitWidthIncl)
 									return new MeasuringResult(currentWidth, i);
 								currentWidth += w;
@@ -486,7 +485,7 @@ public class RenderFontUtil {
 							for (int i = endIndexExcl - markerNum; i < endIndexExcl; i++) {
 								if (i >= wholeEndIndexExcl)
 									return new MeasuringResult(currentWidth, i);
-								float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects(), useIntWidth);
+								float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects());
 								if (currentWidth + w > limitWidthIncl)
 									return new MeasuringResult(currentWidth, i);
 								currentWidth += w;
@@ -512,14 +511,14 @@ public class RenderFontUtil {
 					for (int i = beginIndex; i < endIndexExcl; i++) {
 						char ch = context.originalText.charAt(i);
 						if (context.isEdit) {
-							float w = prepareAndGetCharWidth(context, ch, useIntWidth);
+							float w = prepareAndGetCharWidth(context, ch);
 							widths[i] = w;
 						} else {
 							float total_width = 0;
 							CharArrayRingList ringList = context.getRingList();
 							ringList.addLast(ch);
 							while (!ringList.isEmpty()) {
-								float w = prepareAndGetCharWidth(context, ringList.pollFirst(), useIntWidth);
+								float w = prepareAndGetCharWidth(context, ringList.pollFirst());
 								total_width += w;
 							}
 							widths[i] = total_width;
@@ -530,18 +529,18 @@ public class RenderFontUtil {
 					//§の次が無い
 					float w;
 					if (context.isEdit)
-						w = getCharWidthWithSpace(context.fontRenderer, '§', getInvalidDisplayEffects(), useIntWidth);
+						w = getCharWidthWithSpace(context.fontRenderer, '§', getInvalidDisplayEffects());
 					else
-						w = getCharWidthWithSpace(context.fontRenderer, '§', Collections.emptyList(), useIntWidth);
+						w = getCharWidthWithSpace(context.fontRenderer, '§', Collections.emptyList());
 					widths[beginIndex] = w;
 				}
 				case ESCAPED_SECTION_SIGN -> {
 					if (context.isEdit) {
-						float w = getCharWidthWithSpace(context.fontRenderer, '§', getValidDisplayEffects(), useIntWidth);
+						float w = getCharWidthWithSpace(context.fontRenderer, '§', getValidDisplayEffects());
 						widths[beginIndex] = w;
 						widths[beginIndex + 1] = w;
 					} else {
-						float w = prepareAndGetCharWidth(context, '§', useIntWidth);
+						float w = prepareAndGetCharWidth(context, '§');
 						if (reverse)
 							widths[beginIndex] = w;
 						else
@@ -550,7 +549,7 @@ public class RenderFontUtil {
 				}
 				case FORMATTING_CODE_UNTERMINATED_LONGKEY, FORMATTING_CODE_UNKNOWN -> {
 					for (int i = beginIndex; i < endIndexExcl; i++) {
-						float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getInvalidDisplayEffects(), useIntWidth);
+						float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getInvalidDisplayEffects());
 						widths[i] = w;
 					}
 				}
@@ -559,14 +558,14 @@ public class RenderFontUtil {
 						pair.getValue().applyFormat(context, option);
 						if (context.isEdit) {
 							for (int i = beginIndex; i < endIndexExcl; i++) {
-								float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects(), useIntWidth);
+								float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects());
 								widths[i] = w;
 							}
 						} else {
 							float total_width = 0;
 							CharArrayRingList ringList = context.getRingList();
 							while (!ringList.isEmpty()) {
-								float w = prepareAndGetCharWidth(context, ringList.pollFirst(), useIntWidth);
+								float w = prepareAndGetCharWidth(context, ringList.pollFirst());
 								total_width += w;
 							}
 							if (reverse)
@@ -576,7 +575,7 @@ public class RenderFontUtil {
 						}
 					} else {
 						for (int i = beginIndex; i < endIndexExcl; i++) {
-							float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getInvalidDisplayEffects(), useIntWidth);
+							float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getInvalidDisplayEffects());
 							widths[i] = w;
 						}
 					}
@@ -585,14 +584,14 @@ public class RenderFontUtil {
 					Collection<IRenderingCharEffect> effects_before = new ArrayList<>(context.effects);
 					if (context.isEdit) {
 						for (int i = beginIndex; i < beginIndex + 1 + markerNum; i++) {
-							float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects(), useIntWidth);
+							float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects());
 							widths[i] = w;
 						}
 					} else {
 						if (type == Type.FORMATTING_RANGE_UNTERMINATED) {
 							float total_width = 0;
 							for (int i = beginIndex; i < beginIndex + 1 + markerNum; i++) {
-								float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects(), useIntWidth);
+								float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects());
 								total_width += w;
 							}
 							if (reverse)
@@ -608,7 +607,7 @@ public class RenderFontUtil {
 					if (context.isEdit) {
 						if (type == Type.FORMATTING_RANGE) {
 							for (int i = endIndexExcl - markerNum; i < endIndexExcl; i++) {
-								float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects(), useIntWidth);
+								float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects());
 								widths[i] = w;
 							}
 						}
@@ -859,7 +858,7 @@ public class RenderFontUtil {
 				} else if (ch == ' ') {
 					whiteSpaceIdx = i;
 				} else {
-					float w = getCharWidthWithSpace(fontRenderer, ch, effects, RenderFontUtil.useIntWidth);
+					float w = getCharWidthWithSpace(fontRenderer, ch, effects);
 					if (currentWidth + w > wrapWidth) {
 						if (whiteSpaceIdx == -1 && newLineIfNoSpace) {
 							//空白が無いので全て次の行に持っていく
@@ -881,7 +880,7 @@ public class RenderFontUtil {
 								startIndex = whiteSpaceIdx + 1;//空白を含めない
 							} else {
 								startIndex = whiteSpaceIdx;
-								currentWidth += getCharWidthRaw(fontRenderer, ' ', RenderFontUtil.useIntWidth);
+								currentWidth += getCharWidthRaw(fontRenderer, ' ');
 							}
 							whiteSpaceIdx = -1;
 						}
@@ -940,7 +939,7 @@ public class RenderFontUtil {
 	public static float renderRawString(FontRenderer fontRenderer, String text, float posX, float posY, boolean asShadow) {
 		float x = posX;
 		for (int i = 0; i < text.length(); i++) {
-			x += renderChar(fontRenderer, text.charAt(i), x, posY, Collections.emptyList(), asShadow, useIntWidth);
+			x += renderChar(fontRenderer, text.charAt(i), x, posY, Collections.emptyList(), asShadow);
 		}
 		return x;
 	}
@@ -950,10 +949,10 @@ public class RenderFontUtil {
 		endIndex = Math.min(endIndex, text.length());
 		return FormattedStringObject.render(fontRenderer, text, beginIndex, endIndex, posX, posY, asShadow);
 	}
-	public static float renderChar(FontRenderer fontRenderer, char ch, float posX, float posY, Collection<IRenderingCharEffect> effects, boolean asShadow, boolean useIntWidth) {
-		return renderChar(fontRenderer, ch, posX, posY, effects, asShadow, useIntWidth, false, GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING));
+	public static float renderChar(FontRenderer fontRenderer, char ch, float posX, float posY, Collection<IRenderingCharEffect> effects, boolean asShadow) {
+		return renderChar(fontRenderer, ch, posX, posY, effects, asShadow, false, GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING));
 	}
-	private static float renderChar(FontRenderer fontRenderer, char ch, float posX, float posY, Collection<IRenderingCharEffect> effects, boolean asShadow, boolean useIntWidth, boolean isStringRendering, int framebufferObject) {
+	private static float renderChar(FontRenderer fontRenderer, char ch, float posX, float posY, Collection<IRenderingCharEffect> effects, boolean asShadow, boolean isStringRendering, int framebufferObject) {
 		if (ch == 0)
 			return 0;
 		float char_width;
@@ -1008,10 +1007,7 @@ public class RenderFontUtil {
 		for (IRenderingCharEffect effect : effects) {
 			effect.postRender(context);
 		}
-		if (useIntWidth)
-			return (int) context.nextRenderXOffset;
-		else
-			return context.nextRenderXOffset;
+		return context.nextRenderXOffset;
 	}
 	public static void renderCharRaw(float red, float green, float blue, float alpha, float minU, float minV, float maxU, float maxV, float leftTopX, float leftTopY, float leftTopZ, float leftBottomX, float leftBottomY, float leftBottomZ, float rightTopX, float rightTopY, float rightTopZ, float rightBottomX, float rightBottomY, float rightBottomZ) {
 		GlStateManager.color(red, green, blue, alpha);
@@ -1026,7 +1022,7 @@ public class RenderFontUtil {
 		GlStateManager.glVertex3f(rightBottomX, rightBottomY, rightBottomZ);
 		GlStateManager.glEnd();
 	}
-	private static float prepareAndRenderChar(RenderingStringContext context, char ch, boolean useIntWidth) {
+	private static float prepareAndRenderChar(RenderingStringContext context, char ch) {
 		PreparingContext prepare = new PreparingContext(context.fontRenderer, ch, context.isEdit, true, context.originalText, context.tryGetRingList(), context.effects);
 		boolean cancelled = false;
 		for (IRenderingCharEffect effect : context.effects) {
@@ -1042,7 +1038,7 @@ public class RenderFontUtil {
 			return width;
 		}
 
-		return renderChar(context.fontRenderer, prepare.charToRender, context.posX, context.posY, context.effects, context.asShadow, useIntWidth, true, context.framebufferObject);
+		return renderChar(context.fontRenderer, prepare.charToRender, context.posX, context.posY, context.effects, context.asShadow, true, context.framebufferObject);
 	}
 
 	//getWidth
@@ -1052,7 +1048,7 @@ public class RenderFontUtil {
 	public static float getRawStringWidthFloat(FontRenderer fontRenderer, String text) {
 		float total_width = 0;
 		for (int i = 0; i < text.length(); i++) {
-			total_width += getCharWidthWithSpace(fontRenderer, text.charAt(i), Collections.emptyList(), useIntWidth);
+			total_width += getCharWidthWithSpace(fontRenderer, text.charAt(i), Collections.emptyList());
 		}
 		return total_width;
 	}
@@ -1064,10 +1060,10 @@ public class RenderFontUtil {
 		context.effects.addAll(appliedEffects);
 		return FormattedStringObject.parse(text).measure(context, beginIndex, endIndex, Float.POSITIVE_INFINITY).totalWidth;
 	}
-	public static float getCharWidthWithSpace(FontRenderer fontRenderer, char ch, Collection<IRenderingCharEffect> effects, boolean useIntWidth) {
+	public static float getCharWidthWithSpace(FontRenderer fontRenderer, char ch, Collection<IRenderingCharEffect> effects) {
 		if (ch == 0)
 			return 0;
-		float char_width = getCharWidthRaw(fontRenderer, ch, false);
+		float char_width = getCharWidthRaw(fontRenderer, ch);
 		MeasuringCharWidthContext context = new MeasuringCharWidthContext(fontRenderer, ch, char_width, CHAR_HEIGHT);
 		for (IRenderingCharEffect effect : effects) {
 			effect.first(context);
@@ -1075,12 +1071,9 @@ public class RenderFontUtil {
 		for (IRenderingCharEffect effect : effects) {
 			effect.second(context);
 		}
-		if (useIntWidth)
-			return (int) context.charWidthWithSpace;
-		else
-			return context.charWidthWithSpace;
+		return context.charWidthWithSpace;
 	}
-	public static float getCharWidthRaw(FontRenderer fontRenderer, char ch, boolean useIntWidth) {
+	public static float getCharWidthRaw(FontRenderer fontRenderer, char ch) {
 		if (ch == 0)
 			return 0;
 		float char_width;
@@ -1097,12 +1090,9 @@ public class RenderFontUtil {
 				char_width = (right + 1 - left) / 2;
 			}
 		}
-		if (useIntWidth)
-			return (int) char_width;
-		else
-			return char_width;
+		return char_width;
 	}
-	private static float prepareAndGetCharWidth(MeasuringStringWidthContext context, char ch, boolean useIntWidth) {
+	private static float prepareAndGetCharWidth(MeasuringStringWidthContext context, char ch) {
 		PreparingContext prepare = new PreparingContext(context.fontRenderer, ch, context.isEdit, false, context.originalText, context.tryGetRingList(), context.effects);
 		boolean cancelled = false;
 		for (IRenderingCharEffect effect : context.effects) {
@@ -1117,7 +1107,7 @@ public class RenderFontUtil {
 			}
 			return width;
 		}
-		return getCharWidthWithSpace(context.fontRenderer, prepare.charToRender, context.effects, useIntWidth);
+		return getCharWidthWithSpace(context.fontRenderer, prepare.charToRender, context.effects);
 	}
 
 	//trim
@@ -1132,7 +1122,7 @@ public class RenderFontUtil {
 			float total_width = 0;
 			for (int i = 0; i < text.length(); i++) {
 				char c0 = text.charAt(i);
-				total_width += getCharWidthWithSpace(fontRenderer, c0, Collections.emptyList(), RenderFontUtil.useIntWidth);
+				total_width += getCharWidthWithSpace(fontRenderer, c0, Collections.emptyList());
 				if (total_width > width) {
 					return text.substring(0, i);//今見た文字は含まれない
 				}
@@ -1142,7 +1132,7 @@ public class RenderFontUtil {
 			float total_width = 0;
 			for (int i = text.length() - 1; i >= 0; i--) {
 				char c0 = text.charAt(i);
-				total_width += getCharWidthWithSpace(fontRenderer, c0, Collections.emptyList(), RenderFontUtil.useIntWidth);
+				total_width += getCharWidthWithSpace(fontRenderer, c0, Collections.emptyList());
 				if (total_width > width)
 					return text.substring(i + 1);//今見た文字は含まない
 			}
@@ -1435,12 +1425,6 @@ public class RenderFontUtil {
 		if (fontRenderer.unicodeFlag)
 			return -1;
 		return ASCII_CHARS.indexOf(c);
-	}
-	public static float toIntWidthIfForced(float width) {
-		if (useIntWidth)
-			return (int) width;
-		else
-			return width;
 	}
 
 	public static class MeasuringResult {
