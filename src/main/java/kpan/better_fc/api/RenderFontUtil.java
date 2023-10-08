@@ -1331,6 +1331,20 @@ public class RenderFontUtil {
 		return result;
 	}
 
+	//getColor
+	public static int getColor(FontRenderer fontRenderer, Collection<IRenderingCharEffect> effects) {
+		int color = -1;
+		for (IRenderingCharEffect effect : effects) {
+			if (effect instanceof IRenderingEffectColor c) {
+				if (c instanceof IRenderingEffectSingleColor)
+					color = ((IRenderingEffectSingleColor) c).getColor(fontRenderer);
+				else
+					color = -1;
+			}
+		}
+		return color;
+	}
+
 	//fontRendererUtils
 	public static float drawString(FontRenderer fontRenderer, String text, float x, float y, int color) {
 		return drawString(fontRenderer, text, x, y, color, false);
