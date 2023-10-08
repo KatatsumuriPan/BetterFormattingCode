@@ -1,0 +1,9 @@
+version 1.1.0 :
+ Add Optifine compatbility.
+ Fix depth buffer bug of StencilTextRenderer.
+ Support team color (glowing effect and spectator menu icon).
+ API update:
+  Remove useIntWidth in RenderFontUtil.
+  Rename RenderingCharContext.charWidth to charRenderingWidth.
+version 1.0.0 :
+ First release.
