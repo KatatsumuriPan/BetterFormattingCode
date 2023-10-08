@@ -8,6 +8,8 @@ import kpan.better_fc.api.contexts.string.FormattingContext;
 import kpan.better_fc.api.contexts.string.GetEffectsContext;
 import kpan.better_fc.api.contexts.string.MeasuringStringWidthContext;
 import kpan.better_fc.api.contexts.string.RenderingStringContext;
+import kpan.better_fc.asm.compat.CompatOptifine;
+import kpan.better_fc.compat.optifine.CompatFontRenderer;
 import kpan.better_fc.util.CharArrayRingList;
 import kpan.better_fc.util.ListUtil;
 import kpan.better_fc.util.StringReader;
@@ -967,7 +969,7 @@ public class RenderFontUtil {
 		} else {
 			int index = getAsciiCharIndex(fontRenderer, ch);
 			if (index != -1) {
-				int cw = fontRenderer.charWidth[index] - 1;
+				float cw = getCharWidthRaw(fontRenderer, ch);
 				char_width = cw - 0.01f;
 				next_render_x_offset = cw + 1;
 				int i = index % 16 * 8;
@@ -982,6 +984,8 @@ public class RenderFontUtil {
 				float right = width_data & 15;
 				char_width = (right + 1 - left - 0.02f) / 2;
 				next_render_x_offset = (right + 1 - left) / 2 + 1;
+				if (CompatOptifine.isOptifineLoaded())
+					next_render_x_offset = (int) next_render_x_offset;
 				float f2 = (float) (ch % 16 * 16) + left;
 				float f3 = (float) ((ch & 255) / 16 * 16);
 				min_u = f2 / 256f;
@@ -1082,12 +1086,16 @@ public class RenderFontUtil {
 		} else {
 			int index = getAsciiCharIndex(fontRenderer, ch);
 			if (index != -1) {
-				char_width = fontRenderer.charWidth[index] - 1;
+				if (CompatOptifine.isOptifineLoaded())
+					char_width = CompatFontRenderer.getCharWidthFloat(fontRenderer, ch) - 1;
+				else
+					char_width = fontRenderer.charWidth[index] - 1;
 			} else {
 				int width_data = fontRenderer.glyphWidth[ch] & 255;
-				float left = width_data >>> 4;
-				float right = width_data & 15;
-				char_width = (right + 1 - left) / 2;
+				int left = width_data >>> 4;
+				int right = width_data & 15;
+				float w = (right + 1 - left) / 2f;
+				char_width = CompatOptifine.isOptifineLoaded() ? (int) w : w;
 			}
 		}
 		return char_width;
@@ -1328,6 +1336,8 @@ public class RenderFontUtil {
 		return drawString(fontRenderer, text, x, y, color, false);
 	}
 	public static float drawString(FontRenderer fontRenderer, String text, float x, float y, int color, boolean withShadow) {
+		//Optifineのblendがtrueになってる場合とblendFuncがわずかに異なるが無視
+		//そもそもfontの時点で半透明なのはどうなのかって話でもある
 		if (withShadow) {
 			return drawStringWithShadow(fontRenderer, text, x, y, color);
 		} else {
@@ -1379,6 +1389,7 @@ public class RenderFontUtil {
 		return drawSplitString(fontRenderer, str, x, y, wrapWidth, textColor, true);
 	}
 	public static Pair<Float, Float> drawSplitString(FontRenderer fontRenderer, String str, int x, int y, float wrapWidth, int textColor, boolean keepFormatting) {
+		//Optifineのblendがtrueになってる場合とblendFuncがわずかに異なるが無視
 		fontRenderer.textColor = textColor;
 		float last_x = x;
 		for (String s : listFormattedStringToWidth(fontRenderer, str, wrapWidth, keepFormatting)) {
@@ -1425,6 +1436,12 @@ public class RenderFontUtil {
 		if (fontRenderer.unicodeFlag)
 			return -1;
 		return ASCII_CHARS.indexOf(c);
+	}
+	public static float getOffsetBold(FontRenderer fontRenderer) {
+		if (CompatOptifine.isOptifineLoaded())
+			return CompatFontRenderer.getOffsetBold(fontRenderer);
+		else
+			return 1;
 	}
 
 	public static class MeasuringResult {

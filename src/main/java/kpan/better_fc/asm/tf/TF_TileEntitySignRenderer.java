@@ -1,5 +1,6 @@
 package kpan.better_fc.asm.tf;
 
+import kpan.better_fc.asm.compat.CompatOptifine;
 import kpan.better_fc.asm.core.AsmTypes;
 import kpan.better_fc.asm.core.AsmUtil;
 import kpan.better_fc.asm.core.MyAsmNameRemapper.FieldRemap;
@@ -45,6 +46,8 @@ public class TF_TileEntitySignRenderer {
 		//おそらくRFGのせいだろう
 		if (AsmUtil.isDeobfEnvironment())
 			return targetInDev();
+		else if (CompatOptifine.isOptifineLoaded())
+			return targetWithOptifine();
 		else
 			return targetInRuntime();
 	}
@@ -136,12 +139,54 @@ public class TF_TileEntitySignRenderer {
 		}
 		return instrs;
 	}
+	private static Instructions targetWithOptifine() {
+		Instructions instrs = Instructions.create();
+		instrs.aload(1);
+		instrs.getField(signText);
+		instrs.iload(16);
+		instrs.insn(Opcodes.AALOAD);
+		instrs.rep();
+		instrs.label(51);
+		for (int i = 0; i < 7; i++) {
+			instrs.rep();
+		}
+		instrs.label(52);
+		for (int i = 0; i < 11; i++) {
+			instrs.rep();
+		}
+		instrs.label(53);
+		for (int i = 0; i < 1; i++) {
+			instrs.rep();
+		}
+		instrs.label(54);
+		for (int i = 0; i < 1; i++) {
+			instrs.rep();
+		}
+		instrs.label(55);
+		for (int i = 0; i < 4; i++) {
+			instrs.rep();
+		}
+		instrs.label(57);
+		for (int i = 0; i < 11; i++) {
+			instrs.rep();
+		}
+		instrs.label(58);
+		for (int i = 0; i < 21; i++) {
+			instrs.rep();
+		}
+		instrs.label(56);
+		for (int i = 0; i < 20; i++) {
+			instrs.rep();
+		}
+		return instrs;
+	}
 	private static Instructions replace() {
 		Instructions instrs = Instructions.create();
 		instrs.aload(1);
 		instrs.aload(13);
+		instrs.iload(15);
 		instrs.iload(16);
-		instrs.invokeStatic(HOOK, "onRenderText", AsmUtil.toMethodDesc(AsmTypes.VOID, "net/minecraft/tileentity/TileEntitySign", "net.minecraft.client.gui.FontRenderer", AsmTypes.INT));
+		instrs.invokeStatic(HOOK, "onRenderText", AsmUtil.toMethodDesc(AsmTypes.VOID, "net/minecraft/tileentity/TileEntitySign", "net.minecraft.client.gui.FontRenderer", AsmTypes.INT, AsmTypes.INT));
 		return instrs;
 	}
 
