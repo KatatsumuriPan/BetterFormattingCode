@@ -957,12 +957,12 @@ public class RenderFontUtil {
 	private static float renderChar(FontRenderer fontRenderer, char ch, float posX, float posY, Collection<IRenderingCharEffect> effects, boolean asShadow, boolean isStringRendering, int framebufferObject) {
 		if (ch == 0)
 			return 0;
-		float char_width;
+		float char_rendering_width;
 		float next_render_x_offset;
 		float min_u;
 		float min_v;
 		if (ch == ' ') {
-			char_width = 3;
+			char_rendering_width = 3;
 			next_render_x_offset = 4;
 			min_u = 0;
 			min_v = 0;
@@ -970,7 +970,7 @@ public class RenderFontUtil {
 			int index = getAsciiCharIndex(fontRenderer, ch);
 			if (index != -1) {
 				float cw = getCharWidthRaw(fontRenderer, ch);
-				char_width = cw - 0.01f;
+				char_rendering_width = cw - 0.01f;
 				next_render_x_offset = cw + 1;
 				int i = index % 16 * 8;
 				int j = index / 16 * 8;
@@ -982,7 +982,7 @@ public class RenderFontUtil {
 				int texture_index = ch / 256;
 				float left = width_data >>> 4;
 				float right = width_data & 15;
-				char_width = (right + 1 - left - 0.02f) / 2;
+				char_rendering_width = (right + 1 - left - 0.02f) / 2;
 				next_render_x_offset = (right + 1 - left) / 2 + 1;
 				if (CompatOptifine.isOptifineLoaded())
 					next_render_x_offset = (int) next_render_x_offset;
@@ -998,7 +998,7 @@ public class RenderFontUtil {
 			}
 		}
 		//greenとblueが逆なのはバニラが悪い
-		RenderingCharContext context = new RenderingCharContext(fontRenderer, ch, char_width, CHAR_HEIGHT, asShadow, isStringRendering, min_u, min_v, posX, posY, fontRenderer.red, fontRenderer.blue, fontRenderer.green, fontRenderer.alpha, next_render_x_offset, framebufferObject);
+		RenderingCharContext context = new RenderingCharContext(fontRenderer, ch, char_rendering_width, CHAR_HEIGHT, asShadow, isStringRendering, min_u, min_v, posX, posY, fontRenderer.red, fontRenderer.blue, fontRenderer.green, fontRenderer.alpha, next_render_x_offset, framebufferObject);
 		for (IRenderingCharEffect effect : effects) {
 			effect.preRender(context);
 		}
@@ -1077,6 +1077,9 @@ public class RenderFontUtil {
 		}
 		return context.charWidthWithSpace;
 	}
+	/***
+	 * Get char width without space(=fontRenderer.getCharWidth()-1)
+	 */
 	public static float getCharWidthRaw(FontRenderer fontRenderer, char ch) {
 		if (ch == 0)
 			return 0;

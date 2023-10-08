@@ -69,7 +69,6 @@ public class ASMTransformer implements IClassTransformer {
 			cv = TF_TextFormatting.appendVisitor(cv, transformedName);
 			cv = TF_TileEntitySignRenderer.appendVisitor(cv, transformedName);
 
-
 			if (cv == cw)
 				return bytes;
 
@@ -81,6 +80,7 @@ public class ASMTransformer implements IClassTransformer {
 			//Writer内の情報をbyte配列にして返す。
 			return new_bytes;
 		} catch (Exception e) {
+			System.out.println(transformedName);
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 			throw e;
