@@ -10,7 +10,7 @@ import org.lwjgl.opengl.GL11;
 
 @SuppressWarnings("unused")
 public class HK_TileEntitySignRenderer {
-	public static void onRenderText(TileEntitySign te, FontRenderer fontrenderer, int j) {
+	public static void onRenderText(TileEntitySign te, FontRenderer fontrenderer, int color, int j) {
 		ITextComponent itextcomponent = te.signText[j];
 		String s = itextcomponent.getFormattedText();
 		if (!s.isEmpty())
@@ -22,17 +22,17 @@ public class HK_TileEntitySignRenderer {
 		RenderHelper.disableStandardItemLighting();
 		if (HK_GuiEditSign.editLine == j) {
 			HK_FontRenderer.startEditMode();
-			float w = RenderFontUtil.toIntWidthIfForced(RenderFontUtil.getStringWidthFloat(fontrenderer, s));
-			RenderFontUtil.drawString(fontrenderer, s, -w / 2, y, 0);
+			float w = RenderFontUtil.getStringWidthFloat(fontrenderer, s);
+			RenderFontUtil.drawString(fontrenderer, s, -w / 2, y, color);
 			HK_FontRenderer.endEditMode();
 			if (j == te.lineBeingEdited) {
-				RenderFontUtil.drawString(fontrenderer, "> ", -w / 2 - RenderFontUtil.toIntWidthIfForced(RenderFontUtil.getStringWidthFloat(fontrenderer, "> ")), y, 0);
-				RenderFontUtil.drawString(fontrenderer, " <", w / 2, y, 0);
+				RenderFontUtil.drawString(fontrenderer, "> ", -w / 2 - RenderFontUtil.getStringWidthFloat(fontrenderer, "> "), y, color);
+				RenderFontUtil.drawString(fontrenderer, " <", w / 2, y, color);
 			}
 		} else {
 			int end = RenderFontUtil.getEndIndexExcOfTrimmedSubString(fontrenderer, s, 0, 95);//ピッタリは96だけど斜めから見るとちょっとはみ出る(なんなら95もわずかにはみ出る)
-			float w = RenderFontUtil.toIntWidthIfForced(RenderFontUtil.getSubStringWidthFloat(fontrenderer, s, 0, end));
-			RenderFontUtil.drawSubString(fontrenderer, s, 0, end, -w / 2, y, 0);
+			float w = RenderFontUtil.getSubStringWidthFloat(fontrenderer, s, 0, end);
+			RenderFontUtil.drawSubString(fontrenderer, s, 0, end, -w / 2, y, color);
 		}
 		if (isLightingEnabled)
 			RenderHelper.enableStandardItemLighting();

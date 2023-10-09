@@ -17,6 +17,8 @@ import kpan.better_fc.asm.tf.TF_GuiUtilRenderComponents;
 import kpan.better_fc.asm.tf.TF_GuiWorldEdit;
 import kpan.better_fc.asm.tf.TF_ItemWrittenBook;
 import kpan.better_fc.asm.tf.TF_NetHandlerPlayServer;
+import kpan.better_fc.asm.tf.TF_Render;
+import kpan.better_fc.asm.tf.TF_TeleportToTeam$TeamSelectionObject;
 import kpan.better_fc.asm.tf.TF_TextFormatting;
 import kpan.better_fc.asm.tf.TF_TileEntitySignRenderer;
 import net.minecraft.launchwrapper.IClassTransformer;
@@ -62,9 +64,10 @@ public class ASMTransformer implements IClassTransformer {
 			cv = TF_GuiWorldEdit.appendVisitor(cv, transformedName);
 			cv = TF_ItemWrittenBook.appendVisitor(cv, transformedName);
 			cv = TF_NetHandlerPlayServer.appendVisitor(cv, transformedName);
+			cv = TF_Render.appendVisitor(cv, transformedName);
+			cv = TF_TeleportToTeam$TeamSelectionObject.appendVisitor(cv, transformedName);
 			cv = TF_TextFormatting.appendVisitor(cv, transformedName);
 			cv = TF_TileEntitySignRenderer.appendVisitor(cv, transformedName);
-
 
 			if (cv == cw)
 				return bytes;
@@ -77,6 +80,7 @@ public class ASMTransformer implements IClassTransformer {
 			//Writer内の情報をbyte配列にして返す。
 			return new_bytes;
 		} catch (Exception e) {
+			System.out.println(transformedName);
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 			throw e;

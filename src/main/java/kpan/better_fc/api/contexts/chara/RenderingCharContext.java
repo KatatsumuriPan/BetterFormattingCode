@@ -7,7 +7,7 @@ public class RenderingCharContext {
 
 	public final FontRenderer fontRenderer;
 	public final char charToRender;
-	public final float charWidth;
+	public final float charRenderingWidth;
 	public final float charHeight;
 	public final boolean asShadow;
 	public final boolean isStringRendering;
@@ -40,24 +40,24 @@ public class RenderingCharContext {
 	public float renderedWidth;
 
 
-	public RenderingCharContext(FontRenderer fontRenderer, char c, float charWidth, float charHeight, boolean asShadow, boolean isStringRendering, float minU, float minV, float posX, float posY, float red, float green, float blue, float alpha, float nextRenderXOffset, int framebufferObject) {
+	public RenderingCharContext(FontRenderer fontRenderer, char c, float charRenderingWidth, float charHeight, boolean asShadow, boolean isStringRendering, float minU, float minV, float posX, float posY, float red, float green, float blue, float alpha, float nextRenderXOffset, int framebufferObject) {
 		this.fontRenderer = fontRenderer;
 		charToRender = c;
-		this.charWidth = charWidth;
+		this.charRenderingWidth = charRenderingWidth;
 		this.charHeight = charHeight;
 		this.asShadow = asShadow;
 		this.isStringRendering = isStringRendering;
 		this.minU = minU;
 		this.minV = minV;
 		this.framebufferObject = framebufferObject;
-		maxU = minU + charWidth / 128f;
+		maxU = minU + charRenderingWidth / 128f;
 		maxV = minV + charHeight / 128f;
 		this.posX = posX;
 		this.posY = posY;
 		renderLeftTopX = 0;
 		renderLeftBottomX = 0;
-		renderRightTopX = charWidth;
-		renderRightBottomX = charWidth;
+		renderRightTopX = charRenderingWidth;
+		renderRightBottomX = charRenderingWidth;
 		renderLeftTopY = 0;
 		renderLeftBottomY = charHeight;
 		renderRightTopY = 0;
