@@ -9,6 +9,7 @@ import java.util.List;
 public class AsmTypes {
 
 	public static final String HOOK = ModTagsGenerated.MODGROUP.replace('.', '/') + "/asm/hook/";
+	public static final String ACC = ModTagsGenerated.MODGROUP.replace('.', '/') + "/asm/acc/";
 	public static final String VOID = "V";
 	public static final String BOOL = "Z";
 	public static final String CHAR = "C";

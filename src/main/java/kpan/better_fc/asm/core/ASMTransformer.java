@@ -1,5 +1,6 @@
 package kpan.better_fc.asm.core;
 
+import kpan.better_fc.asm.core.adapters.MixinAccessorAdapter;
 import kpan.better_fc.asm.tf.TF_CPacketChatMessage;
 import kpan.better_fc.asm.tf.TF_ChatAllowedCharacters;
 import kpan.better_fc.asm.tf.TF_FontRenderer;
@@ -47,6 +48,7 @@ public class ASMTransformer implements IClassTransformer {
 			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);//maxStack,maxLocal,frameの全てを計算
 			//Adapterを通して書き換え出来るようにする。
 			ClassVisitor cv = cw;
+			cv = MixinAccessorAdapter.transformAccessor(cv, transformedName);
 			cv = TF_ChatAllowedCharacters.appendVisitor(cv, transformedName);
 			cv = TF_CPacketChatMessage.appendVisitor(cv, transformedName);
 			cv = TF_FontRenderer.appendVisitor(cv, transformedName);

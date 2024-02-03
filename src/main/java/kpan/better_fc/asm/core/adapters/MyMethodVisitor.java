@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 public class MyMethodVisitor extends MethodVisitor {
 
 	private final String nameForDebug;
-	private int successed = 0;
+	private int success = 0;
 	private int successExpectedMinInclusive;
 	private int successExpectedMaxInclusive;
 
@@ -26,24 +26,24 @@ public class MyMethodVisitor extends MethodVisitor {
 		this.successExpectedMinInclusive = Math.max(successExpectedMinInclusive, 0);
 		this.successExpectedMaxInclusive = Math.max(successExpectedMaxInclusive, 0);
 	}
-	@SuppressWarnings("unused")
 	public MyMethodVisitor setSuccessExpected(int successExpected) {
 		setSuccessExpectedMin(successExpected);
 		setSuccessExpectedMax(successExpected);
 		return this;
 	}
-	@SuppressWarnings("unused")
 	public MyMethodVisitor setSuccessExpectedMin(int minInclusive) {
 		successExpectedMinInclusive = Math.max(minInclusive, 0);
 		return this;
 	}
-	@SuppressWarnings("unused")
 	public MyMethodVisitor setSuccessExpectedMax(int maxInclusive) {
 		successExpectedMaxInclusive = Math.max(maxInclusive, 0);
 		return this;
 	}
 	protected void success() {
-		successed++;
+		success++;
+	}
+	public int getSuccess() {
+		return success;
 	}
 	@Nullable
 	public Label tryGetLabel(int index) { return labels.inverse().get(index); }
@@ -110,13 +110,13 @@ public class MyMethodVisitor extends MethodVisitor {
 	@Override
 	public void visitEnd() {
 		super.visitEnd();
-		if (successed < successExpectedMinInclusive || successed > successExpectedMaxInclusive) {
+		if (success < successExpectedMinInclusive || success > successExpectedMaxInclusive) {
 			if (successExpectedMinInclusive == successExpectedMaxInclusive)
-				throw new RuntimeException("transform failed:" + nameForDebug + "\nexpected:" + successExpectedMinInclusive + "\nactual:" + successed);
+				throw new RuntimeException("transform failed:" + nameForDebug + "\nexpected:" + successExpectedMinInclusive + "\nactual:" + success);
 			else if (successExpectedMaxInclusive == Integer.MAX_VALUE)
-				throw new RuntimeException("transform failed:" + nameForDebug + "\nexpected: " + successExpectedMinInclusive + "~\nactual:" + successed);
+				throw new RuntimeException("transform failed:" + nameForDebug + "\nexpected: " + successExpectedMinInclusive + "~\nactual:" + success);
 			else
-				throw new RuntimeException("transform failed:" + nameForDebug + "\nexpected: " + successExpectedMinInclusive + "~" + successExpectedMaxInclusive + "\nactual:" + successed);
+				throw new RuntimeException("transform failed:" + nameForDebug + "\nexpected: " + successExpectedMinInclusive + "~" + successExpectedMaxInclusive + "\nactual:" + success);
 		}
 	}
 

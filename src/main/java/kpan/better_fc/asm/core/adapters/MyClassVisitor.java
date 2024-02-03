@@ -19,9 +19,21 @@ public class MyClassVisitor extends ClassVisitor {
 		this.successExpectedMaxInclusive = Math.max(successExpectedMaxInclusive, 0);
 	}
 	@SuppressWarnings("unused")
-	public void setSuccessExpectedMin(int minInclusive) { successExpectedMinInclusive = Math.max(minInclusive, 0); }
-	@SuppressWarnings("unused")
-	public void setSuccessExpectedMax(int maxInclusive) { successExpectedMaxInclusive = Math.max(maxInclusive, 0); }
+	public MyClassVisitor setSuccessExpected(int successExpected) {
+		setSuccessExpectedMin(successExpected);
+		setSuccessExpectedMax(successExpected);
+		return this;
+	}
+	@SuppressWarnings({"unused", "UnusedReturnValue"})
+	public MyClassVisitor setSuccessExpectedMin(int minInclusive) {
+		successExpectedMinInclusive = Math.max(minInclusive, 0);
+		return this;
+	}
+	@SuppressWarnings({"unused", "UnusedReturnValue"})
+	public MyClassVisitor setSuccessExpectedMax(int maxInclusive) {
+		successExpectedMaxInclusive = Math.max(maxInclusive, 0);
+		return this;
+	}
 	protected void success() {
 		successed++;
 	}
