@@ -14,6 +14,7 @@ import kpan.better_fc.asm.tf.TF_GuiEditCommandBlockMinecart;
 import kpan.better_fc.asm.tf.TF_GuiEditSign;
 import kpan.better_fc.asm.tf.TF_GuiNewChat;
 import kpan.better_fc.asm.tf.TF_GuiRepair;
+import kpan.better_fc.asm.tf.TF_GuiScreen;
 import kpan.better_fc.asm.tf.TF_GuiScreenAddServer;
 import kpan.better_fc.asm.tf.TF_GuiScreenBook;
 import kpan.better_fc.asm.tf.TF_GuiUtilRenderComponents;
@@ -86,6 +87,7 @@ public class ASMTransformer implements IClassTransformer {
 			cv = TF_GuiEditSign.appendVisitor(cv, transformedName);
 			cv = TF_GuiNewChat.appendVisitor(cv, transformedName);
 			cv = TF_GuiRepair.appendVisitor(cv, transformedName);
+			cv = TF_GuiScreen.appendVisitor(cv, transformedName);
 			cv = TF_GuiScreenAddServer.appendVisitor(cv, transformedName);
 			cv = TF_GuiScreenBook.appendVisitor(cv, transformedName);
 			cv = TF_GuiUtilRenderComponents.appendVisitor(cv, transformedName);

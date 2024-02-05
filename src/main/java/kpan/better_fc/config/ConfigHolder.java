@@ -3,6 +3,7 @@ package kpan.better_fc.config;
 import kpan.better_fc.config.core.ConfigAnnotations.Comment;
 import kpan.better_fc.config.core.ConfigAnnotations.ConfigOrder;
 import kpan.better_fc.config.core.ConfigAnnotations.Name;
+import kpan.better_fc.config.core.ConfigAnnotations.RangeLong;
 import kpan.better_fc.config.core.ConfigVersionUpdateContext;
 
 public class ConfigHolder {
@@ -27,6 +28,16 @@ public class ConfigHolder {
 
 	public static class Client {
 
+		@Name("Char to Section Sign")
+		@Comment("Character that is converted to a section sign when typed twice.")
+		@ConfigOrder(1)
+		public char charToSectionSign = '&';
+
+		@Name("Double-Typed Threshold")
+		@Comment("Threshold in milliseconds for treating as a double-typed")
+		@ConfigOrder(2)
+		@RangeLong(minValue = 0)
+		public long typeThreshold_ms = 700;
 	}
 
 	//	@Comment("Server settings(Behaviors, physics, etc.)")
