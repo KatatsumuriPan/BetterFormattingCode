@@ -232,11 +232,11 @@ public class RenderFontUtil {
 			IFormattingCode formattingCode = pair.getValue();
 			if (formattingCode == null)
 				return FormattedStringObject.unknownFormattingCode(begin, stringReader.getCursor());
-			String option = stringReader.read(formattingCode.getArgStringLength(stringReader));
+			String option = stringReader.readStr(formattingCode.getArgStringLength(stringReader));
 			return FormattedStringObject.formattingCode(begin, stringReader.getCursor(), pair, option);
 		}
 		private static boolean isRangeEnd(StringReader stringReader, @Nullable String rangeEnd) {
-			return rangeEnd != null && stringReader.canRead(rangeEnd.length()) && stringReader.peeks(rangeEnd.length()).equals(rangeEnd);
+			return rangeEnd != null && stringReader.canRead(rangeEnd.length()) && stringReader.peekStr(rangeEnd.length()).equals(rangeEnd);
 		}
 
 		public static float render(FontRenderer fontRenderer, String text, int beginIndex, int endIndex, float posX, float posY, boolean asShadow) {

@@ -2,6 +2,9 @@ package kpan.better_fc.util;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Predicate;
+
+@SuppressWarnings("unused")
 public class StringReader {
 
 	private final String string;
@@ -61,7 +64,7 @@ public class StringReader {
 	public char peek(int offset) {
 		return string.charAt(cursor + offset);
 	}
-	public String peeks(int length) {
+	public String peekStr(int length) {
 		return string.substring(cursor, cursor + length);
 	}
 	public char read() {
@@ -80,14 +83,27 @@ public class StringReader {
 		}
 	}
 
+	public void expect(char expected) {
+		char next = peek();
+		if (next != expected)
+			throw new IllegalStateException("Expected '" + expected + "', not " + next);
+		skip();
+	}
+
 	@Nullable
-	public String readToChar(char charInclusive) {
+	public String tryReadToChar(char charInclusive) {
 		int index = string.indexOf(charInclusive, cursor);
 		if (index == -1)
 			return null;
 		return readTo(index + 1);
 	}
-	public String read(int length) {
+	public String readToChar(char charExclusive) {
+		int index = string.indexOf(charExclusive, cursor);
+		if (index == -1)
+			return readTo(string.length());
+		return readTo(index);
+	}
+	public String readStr(int length) {
 		return readTo(cursor + length);
 	}
 
@@ -96,4 +112,23 @@ public class StringReader {
 		cursor = indexExcl;
 		return res;
 	}
+
+	public String readQuotedString() {
+		if (!canRead()) {
+			return "";
+		}
+		expect('"');
+		int index = string.indexOf('"', cursor);
+		if (index == -1)
+			return null;
+		return readTo(index + 1);
+	}
+	public String readStr(Predicate<Character> filter) {
+		int start = cursor;
+		while (canRead() && filter.test(peek())) {
+			skip();
+		}
+		return string.substring(start, cursor);
+	}
+
 }

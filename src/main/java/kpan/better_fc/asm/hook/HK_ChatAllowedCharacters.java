@@ -10,7 +10,7 @@ public class HK_ChatAllowedCharacters {
 
 	public static boolean isAllowedCharacter(char character) {
 		if (character == 167)
-			return (RenderFontUtil.isEditMode || allowSectionSign) && ConfigHolder.common.AllowEditingFormattingChar;
+			return (RenderFontUtil.isEditMode || allowSectionSign) && ConfigHolder.common.allowEditingFormattingChar;
 		else
 			return character >= ' ' && character != 127;
 	}
