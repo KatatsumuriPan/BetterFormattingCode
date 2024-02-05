@@ -889,6 +889,19 @@ public class ModGuiConfigEntries extends GuiListExtended {
 
 	}
 
+	public static class CharEntry extends InputEntry {
+
+		public CharEntry(ModGuiConfig owningScreen, ModGuiConfigEntries owningEntryList, AbstractConfigProperty property) {
+			super(owningScreen, owningEntryList, property);
+		}
+
+		@Override
+		public boolean isChanged() {
+			return beforeValue != null ? !beforeValue.equals(textFieldValue.getText()) : textFieldValue.getText().trim().isEmpty();
+		}
+
+	}
+
 	public static class StringEntry extends InputEntry {
 
 		public StringEntry(ModGuiConfig owningScreen, ModGuiConfigEntries owningEntryList, AbstractConfigProperty property) {

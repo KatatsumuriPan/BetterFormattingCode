@@ -119,6 +119,9 @@ public class ConfigHandler {
 				max = annotation.maxValue();
 			}
 			config.createDouble(name, categoryPath, default_value, min, max, comment, getOrder(field));
+		} else if (type == char.class) {
+			char default_value = field.getChar(instance);
+			config.createChar(name, categoryPath, default_value, comment, getOrder(field));
 		} else if (type.isPrimitive()) {
 			throw new RuntimeException("Not Supported:" + type.getName());
 		} else if (type.isEnum()) {
@@ -157,6 +160,8 @@ public class ConfigHandler {
 			field.setFloat(instance, config.getFloat(name, category));
 		} else if (type == double.class) {
 			field.setDouble(instance, config.getDouble(name, category));
+		} else if (type == char.class) {
+			field.setChar(instance, config.getChar(name, category));
 		} else if (type.isPrimitive()) {
 			throw new RuntimeException("Not Supported:" + type.getName());
 		} else if (type.isEnum()) {
@@ -190,6 +195,8 @@ public class ConfigHandler {
 			config.setFloat(name, category, field.getFloat(instance));
 		} else if (type == double.class) {
 			config.setDouble(name, category, field.getDouble(instance));
+		} else if (type == char.class) {
+			config.setChar(name, category, field.getChar(instance));
 		} else if (type.isPrimitive()) {
 			throw new RuntimeException("Not Supported:" + type.getName());
 		} else if (type.isEnum()) {

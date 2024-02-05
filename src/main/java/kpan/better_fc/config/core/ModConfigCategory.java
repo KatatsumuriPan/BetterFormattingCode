@@ -8,6 +8,7 @@ import kpan.better_fc.config.core.gui.ModGuiConfigEntries.CategoryEntry;
 import kpan.better_fc.config.core.gui.ModGuiConfigEntries.IGuiConfigEntry;
 import kpan.better_fc.config.core.properties.AbstractConfigProperty;
 import kpan.better_fc.config.core.properties.ConfigPropertyBool;
+import kpan.better_fc.config.core.properties.ConfigPropertyChar;
 import kpan.better_fc.config.core.properties.ConfigPropertyDouble;
 import kpan.better_fc.config.core.properties.ConfigPropertyEnum;
 import kpan.better_fc.config.core.properties.ConfigPropertyFloat;
@@ -160,6 +161,12 @@ public class ModConfigCategory implements IConfigElement {
 		ConfigPropertyDouble property = new ConfigPropertyDouble(name, defaultValue, minValue, maxValue, comment, order);
 		put(name, property);
 	}
+	public void create(String name, char defaultValue, String comment, int order) {
+		if (get(name) != null)
+			throw new IllegalStateException("property named to \"" + name + "\" already exists!");
+		ConfigPropertyChar property = new ConfigPropertyChar(name, defaultValue, comment, order);
+		put(name, property);
+	}
 	public void create(String name, String defaultValue, String comment, int order) {
 		if (get(name) != null)
 			throw new IllegalStateException("property named to \"" + name + "\" already exists!");
@@ -206,6 +213,13 @@ public class ModConfigCategory implements IConfigElement {
 			return p.getValue();
 		else
 			throw new IllegalStateException("Double property \"" + name + "\" is not found!");
+	}
+	public char getChar(String name) {
+		AbstractConfigProperty property = get(name);
+		if (property instanceof ConfigPropertyChar p)
+			return p.getValue();
+		else
+			throw new IllegalStateException("Char property \"" + name + "\" is not found!");
 	}
 	public String getString(String name) {
 		AbstractConfigProperty property = get(name);
@@ -256,6 +270,13 @@ public class ModConfigCategory implements IConfigElement {
 			p.setValue(value);
 		else
 			throw new IllegalStateException("Double property \"" + name + "\" is not found!");
+	}
+	public void setChar(String name, char value) {
+		AbstractConfigProperty property = get(name);
+		if (property instanceof ConfigPropertyChar p)
+			p.setValue(value);
+		else
+			throw new IllegalStateException("Char property \"" + name + "\" is not found!");
 	}
 	public void setString(String name, String value) {
 		AbstractConfigProperty property = get(name);

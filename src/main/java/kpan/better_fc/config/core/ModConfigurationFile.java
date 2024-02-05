@@ -272,6 +272,9 @@ public class ModConfigurationFile {
 	public void createDouble(String name, String categoryPath, double defaultValue, double minValue, double maxValue, String comment, int order) {
 		getOrCreateCategory(categoryPath).create(name, defaultValue, minValue, maxValue, comment, order);
 	}
+	public void createChar(String name, String categoryPath, char defaultValue, String comment, int order) {
+		getOrCreateCategory(categoryPath).create(name, defaultValue, comment, order);
+	}
 	public void createString(String name, String categoryPath, String defaultValue, String comment, int order) {
 		getOrCreateCategory(categoryPath).create(name, defaultValue, comment, order);
 	}
@@ -293,6 +296,9 @@ public class ModConfigurationFile {
 	}
 	public double getDouble(String name, String categoryPath) {
 		return getCategory(categoryPath).getDouble(name);
+	}
+	public char getChar(String name, String categoryPath) {
+		return getCategory(categoryPath).getChar(name);
 	}
 	public String getString(String name, String categoryPath) {
 		return getCategory(categoryPath).getString(name);
@@ -317,6 +323,9 @@ public class ModConfigurationFile {
 	}
 	public void setString(String name, String categoryPath, String value) {
 		getCategory(categoryPath).setString(name, value);
+	}
+	public void setChar(String name, String categoryPath, char value) {
+		getCategory(categoryPath).setChar(name, value);
 	}
 	public void setEnum(String name, String categoryPath, Enum<?> value) {
 		getCategory(categoryPath).setEnum(name, value);
