@@ -46,7 +46,7 @@ public class TF_TileEntitySignRenderer {
 		//おそらくRFGのせいだろう
 		if (AsmUtil.isDeobfEnvironment())
 			return targetInDev();
-		else if (CompatOptifine.isOptifineLoaded())
+		else if (CompatOptifine.isLoaded())
 			return targetWithOptifine();
 		else
 			return targetInRuntime();

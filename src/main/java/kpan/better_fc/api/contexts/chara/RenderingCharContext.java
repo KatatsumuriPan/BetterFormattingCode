@@ -1,16 +1,16 @@
 package kpan.better_fc.api.contexts.chara;
 
+import kpan.better_fc.api.contexts.string.RenderingStringContext;
 import net.minecraft.client.gui.FontRenderer;
 
 public class RenderingCharContext {
-	public static final float FONT_HEIGHT = 9;
 
+	public final RenderingStringContext stringContext;
 	public final FontRenderer fontRenderer;
 	public final char charToRender;
 	public final float charRenderingWidth;
 	public final float charHeight;
 	public final boolean asShadow;
-	public final boolean isStringRendering;
 	public final int framebufferObject;
 	public float minU;
 	public float minV;
@@ -18,6 +18,7 @@ public class RenderingCharContext {
 	public float maxV;
 	public float posX;
 	public float posY;
+	public float centerY; //文字によってYの中心位置が変わるのは割と困るので
 	public float renderLeftTopX;
 	public float renderLeftBottomX;
 	public float renderRightTopX;
@@ -40,20 +41,18 @@ public class RenderingCharContext {
 	public float renderedWidth;
 
 
-	public RenderingCharContext(FontRenderer fontRenderer, char c, float charRenderingWidth, float charHeight, boolean asShadow, boolean isStringRendering, float minU, float minV, float posX, float posY, float red, float green, float blue, float alpha, float nextRenderXOffset, int framebufferObject) {
-		this.fontRenderer = fontRenderer;
+	public RenderingCharContext(RenderingStringContext stringContext, char c, float charRenderingWidth, float charHeight, float minU, float minV, float maxU, float maxV, float posX, float posY, float centerY, float red, float green, float blue, float alpha, float nextRenderXOffset) {
+		this.stringContext = stringContext;
 		charToRender = c;
 		this.charRenderingWidth = charRenderingWidth;
 		this.charHeight = charHeight;
-		this.asShadow = asShadow;
-		this.isStringRendering = isStringRendering;
 		this.minU = minU;
 		this.minV = minV;
-		this.framebufferObject = framebufferObject;
-		maxU = minU + charRenderingWidth / 128f;
-		maxV = minV + charHeight / 128f;
+		this.maxU = maxU;
+		this.maxV = maxV;
 		this.posX = posX;
 		this.posY = posY;
+		this.centerY = centerY;
 		renderLeftTopX = 0;
 		renderLeftBottomX = 0;
 		renderRightTopX = charRenderingWidth;
@@ -69,5 +68,9 @@ public class RenderingCharContext {
 		this.alpha = alpha;
 		renderedWidth = 0;
 		this.nextRenderXOffset = nextRenderXOffset;
+
+		fontRenderer = stringContext.fontRenderer;
+		asShadow = stringContext.asShadow;
+		framebufferObject = stringContext.framebufferObject;
 	}
 }

@@ -24,6 +24,8 @@ public class StencilTextRenderer implements IStringRenderEndListener {
 
 	@Override
 	public void onRenderEnd(RenderingStringContext context) {
+		if (context.asShadow)
+			return;
 		framebuffer.bindFramebuffer(false);
 		boolean fog_enabled = GL11.glGetBoolean(GL11.GL_FOG);
 		GlStateManager.disableFog();
@@ -100,6 +102,8 @@ public class StencilTextRenderer implements IStringRenderEndListener {
 	}
 
 	public void clear(RenderingStringContext context) {
+		if (context.asShadow)
+			return;
 		if (framebuffer == null || GLStateManagerUtil.viewportWidth > framebuffer.framebufferWidth || GLStateManagerUtil.viewportHeight > framebuffer.framebufferHeight) {
 			int w = Math.max(GLStateManagerUtil.viewportWidth, Minecraft.getMinecraft().displayWidth);
 			int h = Math.max(GLStateManagerUtil.viewportHeight, Minecraft.getMinecraft().displayHeight);

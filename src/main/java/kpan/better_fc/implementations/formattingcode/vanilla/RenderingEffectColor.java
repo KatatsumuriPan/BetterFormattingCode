@@ -35,7 +35,7 @@ public class RenderingEffectColor implements IRenderingEffectSingleColor {
 
 	public static int getColor(FontRenderer fontRenderer, int index) {
 		int color = fontRenderer.colorCode[index];
-		if (CompatOptifine.isOptifineLoaded())
+		if (CompatOptifine.isLoaded())
 			return CompatCustomColors.getTextColor(index, color);
 		else
 			return color;

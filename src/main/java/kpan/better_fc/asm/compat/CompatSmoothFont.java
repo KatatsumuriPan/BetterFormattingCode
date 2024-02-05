@@ -1,12 +1,12 @@
 package kpan.better_fc.asm.compat;
 
-public class CompatOptifine {
+public class CompatSmoothFont {
 	private static final boolean loaded;
 
 	static {
 		boolean tmp;
 		try {
-			Class.forName("optifine.Patcher");
+			Class.forName("bre.smoothfont.asm.CorePlugin");
 			tmp = true;
 		} catch (ClassNotFoundException e) {
 			tmp = false;

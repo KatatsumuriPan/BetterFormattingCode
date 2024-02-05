@@ -6,7 +6,7 @@ import net.minecraftforge.common.config.Configuration;
 
 public class ConfigHolder {
 
-	@Comment("Common settings") //
+	@Comment("Common settings")
 	public static Common common = new Common();
 
 	public static class Common {

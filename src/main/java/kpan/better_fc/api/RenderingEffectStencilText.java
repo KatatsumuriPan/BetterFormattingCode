@@ -29,12 +29,8 @@ public abstract class RenderingEffectStencilText implements IRenderingEffectColo
 			GlStateManager.enableAlpha();
 			GlStateManager.alphaFunc(GL11.GL_GREATER, 0);
 			GlStateManager.colorMask(false, false, false, true);
-			if (context.isStringRendering) {
-				GlStateManager.tryBlendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.SRC_ALPHA, DestFactor.ZERO);
-				framebuffer.bindFramebuffer(false);
-			} else {
-				GlStateManager.clear(GL11.GL_STENCIL_BUFFER_BIT);
-			}
+			GlStateManager.tryBlendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.SRC_ALPHA, DestFactor.ZERO);
+			framebuffer.bindFramebuffer(false);
 		}
 	}
 
@@ -45,23 +41,11 @@ public abstract class RenderingEffectStencilText implements IRenderingEffectColo
 
 		GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
 		GlStateManager.colorMask(true, true, true, true);
-		if (context.isStringRendering) {
-			OpenGlHelper.glBindFramebuffer(OpenGlHelper.GL_FRAMEBUFFER, context.framebufferObject);
-			GL11.glStencilFunc(GL11.GL_EQUAL, 0, ~0);
-			GlStateManager.tryBlendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ONE_MINUS_SRC_ALPHA);
-		} else {
-			GL11.glEnable(GL11.GL_STENCIL_TEST);
-			GL11.glStencilFunc(GL11.GL_EQUAL, 10, ~0);
-			GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-			GlStateManager.pushMatrix();
-			GlStateManager.loadIdentity();
-			GlStateManager.translate(0.0F, 0.0F, -2000.0F);
-			render(context);
-			GlStateManager.popMatrix();
-		}
+		OpenGlHelper.glBindFramebuffer(OpenGlHelper.GL_FRAMEBUFFER, context.framebufferObject);
+		GL11.glStencilFunc(GL11.GL_EQUAL, 0, ~0);
+		GlStateManager.tryBlendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ONE_MINUS_SRC_ALPHA);
 		GL11.glDisable(GL11.GL_STENCIL_TEST);
 
 	}
 
-	protected abstract void render(RenderingCharContext context);
 }
