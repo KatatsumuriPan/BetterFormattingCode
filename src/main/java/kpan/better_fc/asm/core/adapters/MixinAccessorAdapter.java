@@ -77,13 +77,13 @@ public class MixinAccessorAdapter extends MyClassVisitor {
 
 				String srg_name = method.getAnnotation(SrgName.class) != null ? method.getAnnotation(SrgName.class).value() : deobf_name;
 				String runtime_name = MyAsmNameRemapper.runtimeField(new FieldRemap(deobfTargetClassName, deobf_name, type.getName(), srg_name));
-				String runtime_desc = AsmUtil.runtimeDesc(AsmUtil.toDesc(type));
+				String desc = AsmUtil.toDesc(type); //どうやら実行時もdeobfみたい？
 				if (method.getAnnotation(NewField.class) != null) {
 					if ((srg_name != null && !deobf_name.equals(srg_name)) || !deobf_name.equals(runtime_name))
 						throw new IllegalStateException("Field duplicated!:" + methodName);
 					if (!fieldInfoMap.containsKey(runtime_name)) {
 						String runtimeGenerics = null;//TODO
-						FieldVisitor fv = visitField(Opcodes.ACC_PUBLIC | (is_static ? Opcodes.ACC_STATIC : 0), runtime_name, runtime_desc, runtimeGenerics, null);
+						FieldVisitor fv = visitField(Opcodes.ACC_PUBLIC | (is_static ? Opcodes.ACC_STATIC : 0), runtime_name, desc, runtimeGenerics, null);
 						if (fv != null)
 							fv.visitEnd();
 					}
@@ -91,21 +91,21 @@ public class MixinAccessorAdapter extends MyClassVisitor {
 				RuntimeInfo fieldInfo = fieldInfoMap.get(runtime_name);
 				if (fieldInfo == null)
 					throw new IllegalStateException("Unknown field:" + runtime_name + "(" + methodName + ")");
-				if (!fieldInfo.runtimeDesc.equals(runtime_desc))
-					throw new IllegalStateException("Unmatched field type:" + runtime_name + "(" + methodName + ")");
+				if (!fieldInfo.desc.equals(desc))
+					throw new IllegalStateException("Unmatched field type:" + runtime_name + " of " + methodName + " (" + fieldInfo.desc + "!=" + desc + ")");
 				if (fieldInfo.isStatic != is_static)
 					throw new IllegalStateException("Unmatched field access(static):" + runtime_name + "(" + methodName + ")");
 
-				MethodVisitor mv = visitMethod(Opcodes.ACC_PUBLIC | (is_static ? Opcodes.ACC_STATIC : 0), methodName, AsmUtil.toMethodDesc(runtime_desc), null, null);
+				MethodVisitor mv = visitMethod(Opcodes.ACC_PUBLIC | (is_static ? Opcodes.ACC_STATIC : 0), methodName, AsmUtil.toMethodDesc(desc), null, null);
 				if (mv != null) {
 					mv.visitCode();
 					if (is_static) {
-						mv.visitFieldInsn(Opcodes.GETSTATIC, MyAsmNameRemapper.runtimeClass(deobfTargetClassName), runtime_name, runtime_desc);
+						mv.visitFieldInsn(Opcodes.GETSTATIC, MyAsmNameRemapper.runtimeClass(deobfTargetClassName), runtime_name, desc);
 					} else {
 						mv.visitVarInsn(Opcodes.ALOAD, 0);
-						mv.visitFieldInsn(Opcodes.GETFIELD, MyAsmNameRemapper.runtimeClass(deobfTargetClassName), runtime_name, runtime_desc);
+						mv.visitFieldInsn(Opcodes.GETFIELD, MyAsmNameRemapper.runtimeClass(deobfTargetClassName), runtime_name, desc);
 					}
-					mv.visitInsn(AsmUtil.toReturnOpcode(runtime_desc));
+					mv.visitInsn(AsmUtil.toReturnOpcode(desc));
 					mv.visitMaxs(0, 0);//引数は無視され、再計算される(Write時に再計算されるのでtrace時点では0,0のまま)
 					mv.visitEnd();
 				}
@@ -136,7 +136,7 @@ public class MixinAccessorAdapter extends MyClassVisitor {
 				RuntimeInfo fieldInfo = fieldInfoMap.get(runtime_name);
 				if (fieldInfo == null)
 					throw new IllegalStateException("Unknown field:" + runtime_name + "(" + methodName + ")");
-				if (!fieldInfo.runtimeDesc.equals(runtime_desc))
+				if (!fieldInfo.desc.equals(runtime_desc))
 					throw new IllegalStateException("Unmatched field type:" + runtime_name + "(" + methodName + ")");
 				if (fieldInfo.isStatic != is_static)
 					throw new IllegalStateException("Unmatched field access(static):" + runtime_name + "(" + methodName + ")");
@@ -231,7 +231,7 @@ public class MixinAccessorAdapter extends MyClassVisitor {
 		if (mixinTarget == null || !transformedName.startsWith(ModTagsGenerated.MODGROUP + ".asm.acc."))
 			return cv;
 
-		cv = new MyClassVisitor(cv, transformedName, 0) {
+		cv = new MyClassVisitor(cv, transformedName) {
 			@Override
 			public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 				MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
@@ -339,7 +339,7 @@ public class MixinAccessorAdapter extends MyClassVisitor {
 				}
 				return mv;
 			}
-		};
+		}.setSuccessExpected(0);
 
 		return cv;
 	}
@@ -375,11 +375,11 @@ public class MixinAccessorAdapter extends MyClassVisitor {
 	}
 
 	private static class RuntimeInfo {
-		public final String runtimeDesc;
+		public final String desc; //どうやら実行時もdeobfみたい？
 		public final boolean isStatic;
 
-		private RuntimeInfo(String runtimeDesc, boolean isStatic) {
-			this.runtimeDesc = runtimeDesc;
+		private RuntimeInfo(String desc, boolean isStatic) {
+			this.desc = desc;
 			this.isStatic = isStatic;
 		}
 	}

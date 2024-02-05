@@ -24,7 +24,7 @@ public class TF_GuiScreenAddServer {
 	public static ClassVisitor appendVisitor(ClassVisitor cv, String className) {
 		if (!TARGET.equals(className))
 			return cv;
-		MyClassVisitor newcv = new MyClassVisitor(cv, className, 2) {
+		MyClassVisitor newcv = new MyClassVisitor(cv, className) {
 			@Override
 			public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 				MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
@@ -41,11 +41,11 @@ public class TF_GuiScreenAddServer {
 					);
 					mv = new ReplaceInstructionsAdapter(mv, name + " init"
 							, Instructions.create()
-							.invokespecial(References.init)
+							.invokeSpecial(References.init)
 							.putField(serverNameField)
 							, Instructions.create()
 							.invokeStatic(HOOK, "getSectionSignMode", AsmUtil.toMethodDesc(References.EnumSectionSignMode))
-							.invokespecial(References.ModifiedGuiTextField, "<init>", AsmUtil.toMethodDesc(AsmTypes.VOID, AsmTypes.INT, References.FontRenderer, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, References.EnumSectionSignMode))
+							.invokeSpecial(References.ModifiedGuiTextField, "<init>", AsmUtil.toMethodDesc(AsmTypes.VOID, AsmTypes.INT, References.FontRenderer, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, References.EnumSectionSignMode))
 							.putField(serverNameField)
 					);
 					mv = InjectInstructionsAdapter.injectBeforeReturns(mv, name + " setMaxStringLength"
@@ -80,7 +80,7 @@ public class TF_GuiScreenAddServer {
 				}
 				return mv;
 			}
-		};
+		}.setSuccessExpected(2);
 		return newcv;
 	}
 

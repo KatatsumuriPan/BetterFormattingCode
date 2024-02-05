@@ -18,17 +18,19 @@ public class MyMethodVisitor extends MethodVisitor {
 
 	protected final HashBiMap<Label, Integer> labels = HashBiMap.create();
 
-	public MyMethodVisitor(MethodVisitor mv, String nameForDebug) { this(mv, nameForDebug, 1); }
-	public MyMethodVisitor(MethodVisitor mv, String nameForDebug, int successExpected) { this(mv, nameForDebug, successExpected, successExpected); }
-	public MyMethodVisitor(MethodVisitor mv, String nameForDebug, int successExpectedMinInclusive, int successExpectedMaxInclusive) {
+	public MyMethodVisitor(MethodVisitor mv, String nameForDebug) {
 		super(AsmUtil.ASM_VER, mv);
 		this.nameForDebug = nameForDebug;
-		this.successExpectedMinInclusive = Math.max(successExpectedMinInclusive, 0);
-		this.successExpectedMaxInclusive = Math.max(successExpectedMaxInclusive, 0);
+		setSuccessExpected(1);
 	}
 	public MyMethodVisitor setSuccessExpected(int successExpected) {
 		setSuccessExpectedMin(successExpected);
 		setSuccessExpectedMax(successExpected);
+		return this;
+	}
+	public MyMethodVisitor setSuccessExpected(int successExpectedMinInclusive, int successExpectedMaxInclusive) {
+		setSuccessExpectedMin(successExpectedMinInclusive);
+		setSuccessExpectedMax(successExpectedMaxInclusive);
 		return this;
 	}
 	public MyMethodVisitor setSuccessExpectedMin(int minInclusive) {

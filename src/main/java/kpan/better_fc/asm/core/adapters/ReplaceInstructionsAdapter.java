@@ -9,19 +9,24 @@ import org.objectweb.asm.Opcodes;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.function.Function;
 
 public class ReplaceInstructionsAdapter extends MyMethodVisitor {
 
 	protected final Instructions targets;
-	protected final Instructions instructions;
+	protected final Function<ArrayList<Instr>, Instructions> instructionFactory;
 	protected final ArrayList<Instr> holds = Lists.newArrayList();//Java7との互換性のために、ダイヤモンド演算子を使用してない
 
 	private int maxMatched = 0;
 
-	public ReplaceInstructionsAdapter(@Nonnull MethodVisitor mv, String name, Instructions targets, Instructions instructions) {
-		super(mv, name);
+	public ReplaceInstructionsAdapter(@Nonnull MethodVisitor mv, String nameForDebug, Instructions targets, Instructions instructions) {
+		this(mv, nameForDebug, targets, instrs -> instructions);
+	}
+
+	public ReplaceInstructionsAdapter(@Nonnull MethodVisitor mv, String nameForDebug, Instructions targets, Function<ArrayList<Instr>, Instructions> instructionFactory) {
+		super(mv, nameForDebug);
 		this.targets = targets;
-		this.instructions = instructions;
+		this.instructionFactory = instructionFactory;
 	}
 
 	protected final boolean check(Instr instr) {
@@ -60,7 +65,7 @@ public class ReplaceInstructionsAdapter extends MyMethodVisitor {
 	}
 
 	protected void visitAllInstructions() {
-		for (Instr instruction : instructions) {
+		for (Instr instruction : instructionFactory.apply(holds)) {
 			instruction.visit(mv, this);
 		}
 	}
@@ -137,8 +142,8 @@ public class ReplaceInstructionsAdapter extends MyMethodVisitor {
 	}
 	@Override
 	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
-		flushVisits();
-		super.visitLookupSwitchInsn(dflt, keys, labels);
+		if (!check(Instr.lookupSwicthInsn(dflt, keys, labels)))
+			super.visitLookupSwitchInsn(dflt, keys, labels);
 	}
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {

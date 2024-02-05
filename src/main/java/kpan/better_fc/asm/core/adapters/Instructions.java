@@ -6,13 +6,14 @@ import kpan.better_fc.asm.core.MyAsmNameRemapper;
 import kpan.better_fc.asm.core.MyAsmNameRemapper.FieldRemap;
 import kpan.better_fc.asm.core.MyAsmNameRemapper.MethodRemap;
 import kpan.better_fc.asm.core.adapters.Instructions.Instr;
+import kpan.better_fc.asm.core.adapters.Instructions.Instr.JumpRep;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -63,10 +64,35 @@ public class Instructions implements List<Instr> {
 	}
 	public Instructions iincInsn(int var, int increment) { return addInstr(Instr.iincInsn(var, increment)); }
 	public Instructions intInsn(OpcodeInt opcode, int operand) { return addInstr(Instr.intInsn(opcode, operand)); }
+	public Instructions bipush(int operand) { return intInsn(OpcodeInt.BIPUSH, operand); }
+	public Instructions sipush(int operand) { return intInsn(OpcodeInt.SIPUSH, operand); }
+	public Instructions insn(OpcodesSimple opcode) { return addInstr(Instr.insn(opcode)); }
 	public Instructions insn(int opcode) { return addInstr(Instr.insn(opcode)); }
+	/**
+	 * RETURNのこと（RETURNとRETは異なる）
+	 */
+	public Instructions ret() { return insn(OpcodesSimple.RETURN); }
+	public Instructions iret() { return insn(OpcodesSimple.IRETURN); }
+	public Instructions lret() { return insn(OpcodesSimple.LRETURN); }
+	public Instructions fret() { return insn(OpcodesSimple.FRETURN); }
+	public Instructions dret() { return insn(OpcodesSimple.DRETURN); }
+	public Instructions aret() { return insn(OpcodesSimple.ARETURN); }
+	public Instructions iconst0() { return insn(OpcodesSimple.ICONST_0); }
+	public Instructions iconst1() { return insn(OpcodesSimple.ICONST_1); }
+	public Instructions iconst2() { return insn(OpcodesSimple.ICONST_2); }
+	public Instructions iconstM1() { return insn(OpcodesSimple.ICONST_M1); }
+	public Instructions lconst0() { return insn(OpcodesSimple.LCONST_0); }
+	public Instructions fconst0() { return insn(OpcodesSimple.FCONST_0); }
+	public Instructions fconst1() { return insn(OpcodesSimple.FCONST_1); }
+	public Instructions dconst0() { return insn(OpcodesSimple.DCONST_0); }
+	public Instructions dconst1() { return insn(OpcodesSimple.DCONST_1); }
+	public Instructions aconstNull() { return insn(OpcodesSimple.ACONST_NULL); }
+	public Instructions pop() { return insn(OpcodesSimple.POP); }
+	public Instructions dup() { return insn(OpcodesSimple.DUP); }
 	public Instructions jumpInsn(OpcodeJump opcode, Label label) { return addInstr(Instr.jumpInsn(opcode, label)); }
 	public Instructions jumpInsn(OpcodeJump opcode, int labelIndex) { return addInstr(Instr.jumpInsn(opcode, labelIndex)); }
 	public Instructions jumpRep() { return addInstr(Instr.jumpRep()); }
+	public Instructions jumpRep(OpcodeJump opcode) { return addInstr(new JumpRep(opcode)); }
 	public Instructions label(Label label) { return addInstr(Instr.label(label)); }
 	public Instructions label(int labelIndex) { return addInstr(Instr.label(labelIndex)); }
 	public Instructions labelRep() { return addInstr(Instr.labelRep()); }
@@ -97,10 +123,10 @@ public class Instructions implements List<Instr> {
 	public Instructions invokeInterface(String runtimeOwner, String runtimeName, String runtimeMethodDesc) {
 		return methodInsn(OpcodeMethod.INTERFACE, runtimeOwner, runtimeName, runtimeMethodDesc);
 	}
-	public Instructions invokespecial(MethodRemap method) {
+	public Instructions invokeSpecial(MethodRemap method) {
 		return methodInsn(OpcodeMethod.SPECIAL, method);
 	}
-	public Instructions invokespecial(String runtimeOwner, String runtimeName, String runtimeMethodDesc) {
+	public Instructions invokeSpecial(String runtimeOwner, String runtimeName, String runtimeMethodDesc) {
 		return methodInsn(OpcodeMethod.SPECIAL, runtimeOwner, runtimeName, runtimeMethodDesc);
 	}
 	public Instructions methodRep(OpcodeMethod opcode, String runtimeOwner, String runtimeName) {
@@ -119,7 +145,6 @@ public class Instructions implements List<Instr> {
 	public Instructions fstore(int varIndex) { return varInsn(OpcodeVar.FSTORE, varIndex); }
 	public Instructions dstore(int varIndex) { return varInsn(OpcodeVar.DSTORE, varIndex); }
 	public Instructions astore(int varIndex) { return varInsn(OpcodeVar.ASTORE, varIndex); }
-
 
 	public Instructions rep() { return addInstr(Instr.REP); }
 
@@ -158,6 +183,40 @@ public class Instructions implements List<Instr> {
 			@Override
 			protected boolean repEquals(Instr other) { return other.type == VisitType.JUMP; }
 		};
+		private static final Instr LOOKUP_SWITCH_REP = new Instr(0, VisitType.OTHER) {
+			@Override
+			public void visit(MethodVisitor mv, MyMethodVisitor adapter) { }
+			@Override
+			protected boolean isRep() { return true; }
+			@Override
+			protected boolean repEquals(Instr other) { return other == LOOKUP_SWITCH_REP || other instanceof LookupSwitch; }
+		};
+
+		public static class JumpRep extends Instr {
+			private final OpcodeJump opcode;
+
+			public JumpRep(OpcodeJump opcode) {
+				super(opcode.opcode, VisitType.JUMP);
+				this.opcode = opcode;
+			}
+
+			@Override
+			public void visit(MethodVisitor mv, MyMethodVisitor adapter) { }
+			@Override
+			protected boolean isRep() { return true; }
+			@Override
+			protected boolean repEquals(Instr other) {
+				if (other.type != VisitType.JUMP)
+					return false;
+				if (opcode.opcode != other.opcode)
+					return false;
+				return true;
+			}
+			@Override
+			public int hashCode() {
+				return opcode.hashCode();
+			}
+		}
 
 		public static class InvokeRep extends Instr {
 			private final OpcodeMethod opcode;
@@ -186,17 +245,62 @@ public class Instructions implements List<Instr> {
 				return runtimeMethodName.equals(other.params[1]);
 			}
 			@Override
+			public int hashCode() {
+				return Objects.hash(opcode, runtimeOwner, runtimeMethodName);
+			}
+		}
+
+		public static class LookupSwitch extends Instr {
+			private final Label defaulLabel;
+			private final int[] keys;
+			private final Label[] labels;
+			public LookupSwitch(Label defaultLabel, int[] keys, Label[] labels) {
+				super(Opcodes.LOOKUPSWITCH, VisitType.OTHER, defaultLabel, keys, labels);
+				defaulLabel = defaultLabel;
+				this.keys = keys;
+				this.labels = labels;
+			}
+
+			public Label getDefaulLabel() {
+				return defaulLabel;
+			}
+
+			public int[] getKeysCopy() {
+				return keys.clone();
+			}
+
+			public Label[] getLabelsCopy() {
+				return labels.clone();
+			}
+
+			@Override
+			public void visit(@Nullable MethodVisitor mv, @Nullable MyMethodVisitor adapter) {
+				if (mv != null)
+					mv.visitLookupSwitchInsn(defaulLabel, keys, labels);
+			}
+			@Override
 			public boolean equals(Object o) {
 				if (this == o)
 					return true;
-				if (o == null || getClass() != o.getClass())
+				if (!(o instanceof Instr))
 					return false;
-				InvokeRep other = (InvokeRep) o;
-				return opcode == other.opcode && runtimeOwner.equals(other.runtimeOwner) && runtimeMethodName.equals(other.runtimeMethodName);
+				if (((Instr) o).isRep())
+					return ((Instr) o).repEquals(this);
+				if (o.getClass() != LookupSwitch.class)
+					return false;
+				LookupSwitch other = (LookupSwitch) o;
+				if (defaulLabel != other.defaulLabel)
+					return false;
+				if (!Arrays.equals(keys, other.keys))
+					return false;
+				if (!Arrays.equals(labels, other.labels))
+					return false;
+				return true;
 			}
+
 			@Override
 			public int hashCode() {
-				return Objects.hash(opcode, runtimeOwner, runtimeMethodName);
+				return Objects.hash(defaulLabel, keys.length);
 			}
 		}
 
@@ -223,6 +327,9 @@ public class Instructions implements List<Instr> {
 		}
 		public static Instr intInsn(int opcode, int operand) {
 			return new Instr(opcode, VisitType.INT, operand);
+		}
+		public static Instr insn(OpcodesSimple opcode) {
+			return insn(opcode.opcode);
 		}
 		public static Instr insn(int opcode) {
 			return new Instr(opcode, VisitType.INSN);
@@ -293,8 +400,14 @@ public class Instructions implements List<Instr> {
 		public static Instr varInsn(int opcode, int varIndex) {
 			return new Instr(opcode, VisitType.VAR, varIndex);
 		}
+		public static Instr lookupSwicthInsn(Label dflt, int[] keys, Label[] labels) {
+			return new LookupSwitch(dflt, keys, labels);
+		}
+		public static Instr lookupSwitchRep() {
+			return LOOKUP_SWITCH_REP;
+		}
 
-		private final int opcode;
+		public final int opcode;
 		private final Object[] params;
 		private final VisitType type;
 
@@ -302,6 +415,10 @@ public class Instructions implements List<Instr> {
 			this.opcode = opcode;
 			this.type = type;
 			this.params = params;
+		}
+
+		public Object[] getParamsCopy() {
+			return params.clone();
 		}
 
 		public void visit(@Nullable MethodVisitor mv, @Nullable MyMethodVisitor adapter) {
@@ -417,6 +534,7 @@ public class Instructions implements List<Instr> {
 			METHOD,
 			TYPE,
 			VAR,
+			OTHER,
 		}
 
 		@Override
@@ -426,6 +544,121 @@ public class Instructions implements List<Instr> {
 					StringUtils.join(params, ",") +
 					")";
 		}
+	}
+
+	public enum OpcodesSimple {
+		NOP(Opcodes.NOP),
+		ACONST_NULL(Opcodes.ACONST_NULL),
+		ICONST_M1(Opcodes.ICONST_M1),
+		ICONST_0(Opcodes.ICONST_0),
+		ICONST_1(Opcodes.ICONST_1),
+		ICONST_2(Opcodes.ICONST_2),
+		ICONST_3(Opcodes.ICONST_3),
+		ICONST_4(Opcodes.ICONST_4),
+		ICONST_5(Opcodes.ICONST_5),
+		LCONST_0(Opcodes.LCONST_0),
+		LCONST_1(Opcodes.LCONST_1),
+		FCONST_0(Opcodes.FCONST_0),
+		FCONST_1(Opcodes.FCONST_1),
+		FCONST_2(Opcodes.FCONST_2),
+		DCONST_0(Opcodes.DCONST_0),
+		DCONST_1(Opcodes.DCONST_1),
+		IALOAD(Opcodes.IALOAD),
+		LALOAD(Opcodes.LALOAD),
+		FALOAD(Opcodes.FALOAD),
+		DALOAD(Opcodes.DALOAD),
+		AALOAD(Opcodes.AALOAD),
+		BALOAD(Opcodes.BALOAD),
+		CALOAD(Opcodes.CALOAD),
+		SALOAD(Opcodes.SALOAD),
+		IASTORE(Opcodes.IASTORE),
+		LASTORE(Opcodes.LASTORE),
+		FASTORE(Opcodes.FASTORE),
+		DASTORE(Opcodes.DASTORE),
+		AASTORE(Opcodes.AASTORE),
+		BASTORE(Opcodes.BASTORE),
+		CASTORE(Opcodes.CASTORE),
+		SASTORE(Opcodes.SASTORE),
+		POP(Opcodes.POP),
+		POP2(Opcodes.POP2),
+		DUP(Opcodes.DUP),
+		DUP_X1(Opcodes.DUP_X1),
+		DUP_X2(Opcodes.DUP_X2),
+		DUP2(Opcodes.DUP2),
+		DUP2_X1(Opcodes.DUP2_X1),
+		DUP2_X2(Opcodes.DUP2_X2),
+		SWAP(Opcodes.SWAP),
+		IADD(Opcodes.IADD),
+		LADD(Opcodes.LADD),
+		FADD(Opcodes.FADD),
+		DADD(Opcodes.DADD),
+		ISUB(Opcodes.ISUB),
+		LSUB(Opcodes.LSUB),
+		FSUB(Opcodes.FSUB),
+		DSUB(Opcodes.DSUB),
+		IMUL(Opcodes.IMUL),
+		LMUL(Opcodes.LMUL),
+		FMUL(Opcodes.FMUL),
+		DMUL(Opcodes.DMUL),
+		IDIV(Opcodes.IDIV),
+		LDIV(Opcodes.LDIV),
+		FDIV(Opcodes.FDIV),
+		DDIV(Opcodes.DDIV),
+		IREM(Opcodes.IREM),
+		LREM(Opcodes.LREM),
+		FREM(Opcodes.FREM),
+		DREM(Opcodes.DREM),
+		INEG(Opcodes.INEG),
+		LNEG(Opcodes.LNEG),
+		FNEG(Opcodes.FNEG),
+		DNEG(Opcodes.DNEG),
+		ISHL(Opcodes.ISHL),
+		LSHL(Opcodes.LSHL),
+		ISHR(Opcodes.ISHR),
+		LSHR(Opcodes.LSHR),
+		IUSHR(Opcodes.IUSHR),
+		LUSHR(Opcodes.LUSHR),
+		IAND(Opcodes.IAND),
+		LAND(Opcodes.LAND),
+		IOR(Opcodes.IOR),
+		LOR(Opcodes.LOR),
+		IXOR(Opcodes.IXOR),
+		LXOR(Opcodes.LXOR),
+		I2L(Opcodes.I2L),
+		I2F(Opcodes.I2F),
+		I2D(Opcodes.I2D),
+		L2I(Opcodes.L2I),
+		L2F(Opcodes.L2F),
+		L2D(Opcodes.L2D),
+		F2I(Opcodes.F2I),
+		F2L(Opcodes.F2L),
+		F2D(Opcodes.F2D),
+		D2I(Opcodes.D2I),
+		D2L(Opcodes.D2L),
+		D2F(Opcodes.D2F),
+		I2B(Opcodes.I2B),
+		I2C(Opcodes.I2C),
+		I2S(Opcodes.I2S),
+		LCMP(Opcodes.LCMP),
+		FCMPL(Opcodes.FCMPL),
+		FCMPG(Opcodes.FCMPG),
+		DCMPL(Opcodes.DCMPL),
+		DCMPG(Opcodes.DCMPG),
+		IRETURN(Opcodes.IRETURN),
+		LRETURN(Opcodes.LRETURN),
+		FRETURN(Opcodes.FRETURN),
+		DRETURN(Opcodes.DRETURN),
+		ARETURN(Opcodes.ARETURN),
+		RETURN(Opcodes.RETURN),
+		ARRAYLENGTH(Opcodes.ARRAYLENGTH),
+		ATHROW(Opcodes.ATHROW),
+		MONITORENTER(Opcodes.MONITORENTER),
+		MONITOREXIT(Opcodes.MONITOREXIT),
+		;
+
+		public final int opcode;
+
+		OpcodesSimple(int opcode) { this.opcode = opcode; }
 	}
 
 	public enum OpcodeVar {

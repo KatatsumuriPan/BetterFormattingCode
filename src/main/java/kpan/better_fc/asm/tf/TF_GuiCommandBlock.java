@@ -40,11 +40,11 @@ public class TF_GuiCommandBlock {
 					);
 					mv = new ReplaceInstructionsAdapter(mv, name + " init"
 							, Instructions.create()
-							.invokespecial(References.init)
+							.invokeSpecial(References.init)
 							.putField(commandTextField)
 							, Instructions.create()
 							.invokeStatic(HOOK, "getSectionSignMode", AsmUtil.toMethodDesc(References.EnumSectionSignMode))
-							.invokespecial(References.ModifiedGuiTextField, "<init>", AsmUtil.toMethodDesc(AsmTypes.VOID, AsmTypes.INT, References.FontRenderer, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, References.EnumSectionSignMode))
+							.invokeSpecial(References.ModifiedGuiTextField, "<init>", AsmUtil.toMethodDesc(AsmTypes.VOID, AsmTypes.INT, References.FontRenderer, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, References.EnumSectionSignMode))
 							.putField(commandTextField)
 					);
 					mv = new ReplaceInstructionsAdapter(mv, name + " setMaxStringLength"

@@ -25,7 +25,7 @@ public class TF_NetHandlerPlayServer {
 	public static ClassVisitor appendVisitor(ClassVisitor cv, String className) {
 		if (!TARGET.equals(className))
 			return cv;
-		MyClassVisitor newcv = new MyClassVisitor(cv, className, 3) {
+		MyClassVisitor newcv = new MyClassVisitor(cv, className) {
 			@Override
 			public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 				MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
@@ -74,7 +74,7 @@ public class TF_NetHandlerPlayServer {
 
 				return mv;
 			}
-		};
+		}.setSuccessExpected(3);
 		return newcv;
 	}
 

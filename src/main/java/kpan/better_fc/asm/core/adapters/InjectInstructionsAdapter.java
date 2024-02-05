@@ -4,13 +4,23 @@ import kpan.better_fc.asm.core.adapters.Instructions.Instr;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import java.util.ArrayList;
+import java.util.function.Function;
+
 @SuppressWarnings("unused")
 public class InjectInstructionsAdapter extends ReplaceInstructionsAdapter {
 
 	private final int injectIndex;
 
-	public InjectInstructionsAdapter(MethodVisitor mv, String name, Instructions targets, Instructions instructions, int injectIndex) {
-		super(mv, name, targets, instructions);
+	public InjectInstructionsAdapter(MethodVisitor mv, String nameForDebug, Instructions targets, Instructions instructions, int injectIndex) {
+		super(mv, nameForDebug, targets, instructions);
+		if (injectIndex < 0)
+			injectIndex = targets.size() + injectIndex + 1;
+		this.injectIndex = injectIndex;
+	}
+
+	public InjectInstructionsAdapter(MethodVisitor mv, String nameForDebug, Instructions targets, Function<ArrayList<Instr>, Instructions> instructionFactory, int injectIndex) {
+		super(mv, nameForDebug, targets, instructionFactory);
 		if (injectIndex < 0)
 			injectIndex = targets.size() + injectIndex + 1;
 		this.injectIndex = injectIndex;
@@ -27,16 +37,22 @@ public class InjectInstructionsAdapter extends ReplaceInstructionsAdapter {
 			super.visitAllInstructions();
 	}
 
-	public static InjectInstructionsAdapter before(MethodVisitor mv, String name, Instructions targets, Instructions instructions) {
-		return new InjectInstructionsAdapter(mv, name, targets, instructions, 0);
+	public static InjectInstructionsAdapter before(MethodVisitor mv, String nameForDebug, Instructions targets, Instructions instructions) {
+		return new InjectInstructionsAdapter(mv, nameForDebug, targets, instructions, 0);
+	}
+	public static InjectInstructionsAdapter before(MethodVisitor mv, String nameForDebug, Instructions targets, Function<ArrayList<Instr>, Instructions> instructionFactory) {
+		return new InjectInstructionsAdapter(mv, nameForDebug, targets, instructionFactory, 0);
 	}
 
-	public static InjectInstructionsAdapter after(MethodVisitor mv, String name, Instructions targets, Instructions instructions) {
-		return new InjectInstructionsAdapter(mv, name, targets, instructions, -1);
+	public static InjectInstructionsAdapter after(MethodVisitor mv, String nameForDebug, Instructions targets, Instructions instructions) {
+		return new InjectInstructionsAdapter(mv, nameForDebug, targets, instructions, -1);
+	}
+	public static InjectInstructionsAdapter after(MethodVisitor mv, String nameForDebug, Instructions targets, Function<ArrayList<Instr>, Instructions> instructionFactory) {
+		return new InjectInstructionsAdapter(mv, nameForDebug, targets, instructionFactory, -1);
 	}
 
-	public static ReplaceInstructionsAdapter beforeAfter(MethodVisitor mv, String name, Instructions targets, Instructions before, Instructions after) {
-		return new InjectInstructionsAdapter(mv, name, targets, before, 0) {
+	public static ReplaceInstructionsAdapter beforeAfter(MethodVisitor mv, String nameForDebug, Instructions targets, Instructions before, Instructions after) {
+		return new InjectInstructionsAdapter(mv, nameForDebug, targets, before, 0) {
 			@Override
 			protected void visitAllInstructions() {
 				super.visitAllInstructions();
