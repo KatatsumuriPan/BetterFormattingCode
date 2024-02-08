@@ -20,6 +20,7 @@ import kpan.better_fc.asm.tf.TF_GuiScreenBook;
 import kpan.better_fc.asm.tf.TF_GuiUtilRenderComponents;
 import kpan.better_fc.asm.tf.TF_GuiWorldEdit;
 import kpan.better_fc.asm.tf.TF_ItemWrittenBook;
+import kpan.better_fc.asm.tf.TF_Loader;
 import kpan.better_fc.asm.tf.TF_NetHandlerPlayServer;
 import kpan.better_fc.asm.tf.TF_Render;
 import kpan.better_fc.asm.tf.TF_TeleportToTeam$TeamSelectionObject;
@@ -93,6 +94,7 @@ public class ASMTransformer implements IClassTransformer {
 			cv = TF_GuiUtilRenderComponents.appendVisitor(cv, transformedName);
 			cv = TF_GuiWorldEdit.appendVisitor(cv, transformedName);
 			cv = TF_ItemWrittenBook.appendVisitor(cv, transformedName);
+			cv = TF_Loader.appendVisitor(cv, transformedName);
 			cv = TF_NetHandlerPlayServer.appendVisitor(cv, transformedName);
 			cv = TF_Render.appendVisitor(cv, transformedName);
 			cv = TF_TeleportToTeam$TeamSelectionObject.appendVisitor(cv, transformedName);

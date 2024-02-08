@@ -11,7 +11,7 @@ public class SectionCodeSign {
 	private static long lastTypedTime = 0;
 
 	public static void onKeyTyped(GuiScreen guiScreen, char typedChar, int keyCode) {
-		if (typedChar != ConfigHolder.client.charToSectionSign) {
+		if (typedChar != ConfigHolder.client.charToSectionSign || ConfigHolder.client.typeThreshold_ms == 0) {
 			resetTime();
 			invokeKeyTyped(guiScreen, typedChar, keyCode);
 			return;

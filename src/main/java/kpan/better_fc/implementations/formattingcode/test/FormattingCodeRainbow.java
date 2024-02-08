@@ -50,6 +50,7 @@ public class FormattingCodeRainbow extends FormattingCodeSimple {
 		float right = left + width * 1.2F;
 		float bottom = top + height * 1.2F;
 		render(left, right, top, bottom);
+		render(-width, width * 3, -height, height * 3);
 	}
 	public static void render(float left, float right, float top, float bottom) {
 		GlStateManager.enableTexture2D();

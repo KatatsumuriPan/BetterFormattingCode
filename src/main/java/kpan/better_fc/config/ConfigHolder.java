@@ -18,7 +18,7 @@ public class ConfigHolder {
 		@Comment({"This option must match between server and client!",
 				"If true, the formatting character '§' can be entered in text edit boxes and the text with formatting codes can be edited.",
 				"If false, Editing text that contains '§' will cause the '§' to be lost and the text to be corrupted."})
-		public boolean allowEditingFormattingChar;
+		public boolean allowEditingFormattingChar = true;
 
 	}
 
