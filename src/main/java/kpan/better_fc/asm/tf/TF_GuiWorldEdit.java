@@ -24,7 +24,7 @@ public class TF_GuiWorldEdit {
 	public static ClassVisitor appendVisitor(ClassVisitor cv, String className) {
 		if (!TARGET.equals(className))
 			return cv;
-		MyClassVisitor newcv = new MyClassVisitor(cv, className, 2) {
+		MyClassVisitor newcv = new MyClassVisitor(cv, className) {
 			@Override
 			public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 				MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
@@ -37,10 +37,10 @@ public class TF_GuiWorldEdit {
 					);
 					mv = new ReplaceInstructionsAdapter(mv, name
 							, Instructions.create()
-							.invokespecial(References.init)
+							.invokeSpecial(References.init)
 							, Instructions.create()
 							.invokeStatic(HOOK, "getSectionSignMode", AsmUtil.toMethodDesc(References.EnumSectionSignMode))
-							.invokespecial(References.ModifiedGuiTextField, "<init>", AsmUtil.toMethodDesc(AsmTypes.VOID, AsmTypes.INT, References.FontRenderer, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, References.EnumSectionSignMode))
+							.invokeSpecial(References.ModifiedGuiTextField, "<init>", AsmUtil.toMethodDesc(AsmTypes.VOID, AsmTypes.INT, References.FontRenderer, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, References.EnumSectionSignMode))
 					);
 					mv = InjectInstructionsAdapter.injectBeforeReturns(mv, name + " setMaxStringLength"
 							, Instructions.create()
@@ -68,7 +68,7 @@ public class TF_GuiWorldEdit {
 				}
 				return mv;
 			}
-		};
+		}.setSuccessExpected(2);
 		return newcv;
 	}
 

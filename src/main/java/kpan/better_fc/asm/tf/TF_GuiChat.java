@@ -34,10 +34,10 @@ public class TF_GuiChat {
 					);
 					mv = new ReplaceInstructionsAdapter(mv, name + " <init>"
 							, Instructions.create()
-							.invokespecial(References.init)
+							.invokeSpecial(References.init)
 							, Instructions.create()
 							.invokeStatic(HOOK, "getSectionSignMode", AsmUtil.toMethodDesc(References.EnumSectionSignMode))
-							.invokespecial(References.ModifiedGuiTextField, "<init>", AsmUtil.toMethodDesc(AsmTypes.VOID, AsmTypes.INT, References.FontRenderer, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, References.EnumSectionSignMode))
+							.invokeSpecial(References.ModifiedGuiTextField, "<init>", AsmUtil.toMethodDesc(AsmTypes.VOID, AsmTypes.INT, References.FontRenderer, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, AsmTypes.INT, References.EnumSectionSignMode))
 					);
 					mv = new ReplaceInstructionsAdapter(mv, name + " setMaxStringLength"
 							, Instructions.create()

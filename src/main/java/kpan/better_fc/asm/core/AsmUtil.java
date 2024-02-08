@@ -1,5 +1,6 @@
 package kpan.better_fc.asm.core;
 
+import kpan.test.asm.core.MyTextifier;
 import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +17,15 @@ public class AsmUtil {
 	public static final int ASM_VER = Opcodes.ASM5;
 
 	public static boolean isDeobfEnvironment() { return FMLLaunchHandler.isDeobfuscatedEnvironment(); }
+
+	public static boolean isOptifineLoaded() {
+		try {
+			Class.forName("optifine.Patcher");
+		} catch (ClassNotFoundException e) {
+			return false;
+		}
+		return true;
+	}
 
 	//MethodDescにも使用可能
 	public static String obfDesc(String deobfDesc) {
@@ -144,9 +154,8 @@ public class AsmUtil {
 		throw new NotImplementedException("TODO");//TODO
 	}
 
-
-	public static int loadOpcode(String type) {
-		switch (type) {
+	public static int toLoadOpcode(String desc) {
+		switch (desc) {
 			case AsmTypes.BOOL:
 			case AsmTypes.CHAR:
 			case AsmTypes.BYTE:
@@ -163,8 +172,19 @@ public class AsmUtil {
 				return Opcodes.ALOAD;
 		}
 	}
+	public static int loadLocals(MethodVisitor mv, String[] descs, int offset) {
+		for (String desc : descs) {
+			int opcode = AsmUtil.toLoadOpcode(desc);
+			mv.visitVarInsn(opcode, offset);
+			if (opcode == Opcodes.LLOAD || opcode == Opcodes.DOUBLE)
+				offset += 2;
+			else
+				offset += 1;
+		}
+		return offset;
+	}
 
-	public static int returnOpcode(String type) {
+	public static int toReturnOpcode(String type) {
 		switch (type) {
 			case AsmTypes.VOID:
 				return Opcodes.RETURN;

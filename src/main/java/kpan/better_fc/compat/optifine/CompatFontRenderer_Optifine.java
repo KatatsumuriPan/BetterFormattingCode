@@ -7,7 +7,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-public class CompatFontRenderer {
+public class CompatFontRenderer_Optifine {
 
 	private static final MethodHandle getCharWidthFloat;
 	private static final MethodHandle offsetBold;

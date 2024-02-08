@@ -40,7 +40,7 @@ public class FormattingCodesRegistry {
 			return null;
 		char key = stringReader.read();
 		if (key == '<') {
-			String long_key = stringReader.readToChar('>');
+			String long_key = stringReader.tryReadToChar('>');
 			if (long_key == null)
 				return null;
 			return "<" + long_key;//<>を含む
@@ -83,6 +83,8 @@ public class FormattingCodesRegistry {
 			throw new IllegalArgumentException("You can't use § as a key!");
 		if (key == '{')
 			throw new IllegalArgumentException("You can't use { as a key!");
+		if (key == '<')
+			throw new IllegalArgumentException("You can't use < as a key!");
 		if (shortKeyMap.containsKey(key))
 			throw new IllegalStateException("The key '" + key + "' is already exists!");
 		shortKeyMap.put(key, code);
@@ -98,7 +100,7 @@ public class FormattingCodesRegistry {
 		if (key.contains(">"))
 			throw new IllegalStateException("You can't use a key that contains '>'!");
 		if (longKeyMap.containsKey(key))
-			throw new IllegalStateException("The key '" + key + "' is already exists!");
+			throw new IllegalStateException("The key \"" + key + "\" is already exists!");
 		longKeyMap.put("<" + key + ">", code);
 	}
 

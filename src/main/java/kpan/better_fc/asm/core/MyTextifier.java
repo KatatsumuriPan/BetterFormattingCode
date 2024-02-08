@@ -1,5 +1,7 @@
-package kpan.better_fc.asm.core;
+package kpan.test.asm.core;
 
+import kpan.better_fc.asm.core.AsmUtil;
+import kpan.better_fc.asm.core.MyAsmNameRemapper;
 import org.objectweb.asm.util.Textifier;
 
 import javax.annotation.Nullable;
@@ -23,7 +25,7 @@ public class MyTextifier extends Textifier {
 			buf.append("//");
 			buf.append(MyAsmNameRemapper.getClassDeobfName(owner));
 			buf.append('.');
-			buf.append(MyAsmNameRemapper.tryGetFieldDeobfName(owner, name));
+			buf.append(MyAsmNameRemapper.obf2SrgFieldName(owner, name));
 			buf.append(' ');
 			buf.append(AsmUtil.deobfDesc(desc));
 		}

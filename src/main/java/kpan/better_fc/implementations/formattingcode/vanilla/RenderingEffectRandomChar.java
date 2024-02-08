@@ -1,6 +1,7 @@
 package kpan.better_fc.implementations.formattingcode.vanilla;
 
 import kpan.better_fc.api.IRenderingEffectFancyStyle;
+import kpan.better_fc.api.RenderFontUtil;
 import kpan.better_fc.api.contexts.chara.PreparingContext;
 import net.minecraft.client.gui.FontRenderer;
 
@@ -20,7 +21,7 @@ public class RenderingEffectRandomChar implements IRenderingEffectFancyStyle {
 		FontRenderer fontRenderer = context.fontRenderer;
 		Random random = fontRenderer.fontRandom;
 		//EditMode時には空白の変換を行わない(sizeStringToWidthの精度を高めるため)
-		if (!context.isEdit || context.charToRender != ' ' && random.nextInt(20) == 0) {
+		if (!context.isEdit || !RenderFontUtil.isSpace(context.charToRender) && random.nextInt(20) == 0) {
 			int index = RANDOM_CHARS.indexOf(context.charToRender);
 			if (index != -1) {
 				float char_width = fontRenderer.getCharWidth(context.charToRender);

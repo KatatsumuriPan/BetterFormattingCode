@@ -22,7 +22,7 @@ public class TF_GuiEditSign {
 	public static ClassVisitor appendVisitor(ClassVisitor cv, String className) {
 		if (!TARGET.equals(className))
 			return cv;
-		MyClassVisitor newcv = new MyClassVisitor(cv, className, 1) {
+		MyClassVisitor newcv = new MyClassVisitor(cv, className) {
 			@Override
 			public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 				MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);

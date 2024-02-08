@@ -55,18 +55,16 @@ public abstract class FormattingCodeSimple implements IFormattingCode {
 		Map<String, String> result = new HashMap<>();
 		StringReader stringReader = new StringReader(text.substring(1, text.length() - 1));
 		while (stringReader.canRead()) {
-			String key = stringReader.readToChar('=');
+			String key = stringReader.tryReadToChar('=');
 			if (key == null) {
 				result.put(stringReader.getRemaining(), "");
 				break;
 			}
-			key = key.substring(0, key.length() - 1);
-			String value = stringReader.readToChar(',');
+			String value = stringReader.tryReadToChar(',');
 			if (value == null) {
 				result.put(key, stringReader.getRemaining());
 				break;
 			}
-			value = value.substring(0, value.length() - 1);
 			result.put(key, value);
 		}
 		return result;

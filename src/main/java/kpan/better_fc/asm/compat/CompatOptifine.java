@@ -14,7 +14,7 @@ public class CompatOptifine {
 		loaded = tmp;
 	}
 
-	public static boolean isOptifineLoaded() {
+	public static boolean isLoaded() {
 		return loaded;
 	}
 }

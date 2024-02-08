@@ -1,7 +1,9 @@
 package kpan.better_fc.implementations.formattingcode.vanilla;
 
 import kpan.better_fc.api.IRenderingEffectFancyStyle;
+import kpan.better_fc.api.RenderFontUtil;
 import kpan.better_fc.api.contexts.chara.RenderingCharContext;
+import kpan.better_fc.asm.compat.CompatSmoothFont;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -15,12 +17,15 @@ public class RenderingEffectStrikeThrough implements IRenderingEffectFancyStyle 
 
 	@Override
 	public void postRender(RenderingCharContext context) {
-		if (context.charToRender != ' ') {
+		if (!RenderFontUtil.isSpace(context.charToRender)) {
 			float left_x = context.posX;
 			float right_x = left_x + context.nextRenderXOffset;
 			float left_z = context.renderLeftBottomZ;
 			float right_z = context.renderRightBottomZ;
-			float y = context.posY + RenderingCharContext.FONT_HEIGHT / 2;
+			float y = context.centerY;
+			if (CompatSmoothFont.isLoaded()) {
+				context.stringContext.smoothFontIntegration.preStrikethroughRender();
+			}
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder bufferbuilder = tessellator.getBuffer();
 			GlStateManager.disableTexture2D();
@@ -31,6 +36,9 @@ public class RenderingEffectStrikeThrough implements IRenderingEffectFancyStyle 
 			bufferbuilder.pos(left_x, y - 1.0F, left_z).endVertex();
 			tessellator.draw();
 			GlStateManager.enableTexture2D();
+			if (CompatSmoothFont.isLoaded()) {
+				context.stringContext.smoothFontIntegration.postStrikethroughRender();
+			}
 		}
 	}
 

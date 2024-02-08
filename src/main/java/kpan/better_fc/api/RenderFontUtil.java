@@ -1,5 +1,13 @@
 package kpan.better_fc.api;
 
+import bre.smoothfont.FontProperty;
+import bre.smoothfont.FontRasterizer;
+import bre.smoothfont.FontRendererHook;
+import bre.smoothfont.FontTexture;
+import bre.smoothfont.FontTextureManager;
+import bre.smoothfont.FontUtils;
+import bre.smoothfont.GlyphImage;
+import bre.smoothfont.config.CommonConfig;
 import kpan.better_fc.api.contexts.chara.MeasuringCharWidthContext;
 import kpan.better_fc.api.contexts.chara.PreparingContext;
 import kpan.better_fc.api.contexts.chara.RenderingCharContext;
@@ -8,24 +16,28 @@ import kpan.better_fc.api.contexts.string.FormattingContext;
 import kpan.better_fc.api.contexts.string.GetEffectsContext;
 import kpan.better_fc.api.contexts.string.MeasuringStringWidthContext;
 import kpan.better_fc.api.contexts.string.RenderingStringContext;
+import kpan.better_fc.asm.acc.ACC_FontRendererHook;
 import kpan.better_fc.asm.compat.CompatOptifine;
-import kpan.better_fc.compat.optifine.CompatFontRenderer;
+import kpan.better_fc.asm.compat.CompatSmoothFont;
+import kpan.better_fc.compat.CompatFontRenderer;
+import kpan.better_fc.compat.smoothfont.CompatFontRenderer_SmoothFont;
 import kpan.better_fc.util.CharArrayRingList;
 import kpan.better_fc.util.ListUtil;
 import kpan.better_fc.util.StringReader;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiUtilRenderComponents;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
+import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -220,11 +232,11 @@ public class RenderFontUtil {
 			IFormattingCode formattingCode = pair.getValue();
 			if (formattingCode == null)
 				return FormattedStringObject.unknownFormattingCode(begin, stringReader.getCursor());
-			String option = stringReader.read(formattingCode.getArgStringLength(stringReader));
+			String option = stringReader.readStr(formattingCode.getArgStringLength(stringReader));
 			return FormattedStringObject.formattingCode(begin, stringReader.getCursor(), pair, option);
 		}
 		private static boolean isRangeEnd(StringReader stringReader, @Nullable String rangeEnd) {
-			return rangeEnd != null && stringReader.canRead(rangeEnd.length()) && stringReader.peeks(rangeEnd.length()).equals(rangeEnd);
+			return rangeEnd != null && stringReader.canRead(rangeEnd.length()) && stringReader.peekStr(rangeEnd.length()).equals(rangeEnd);
 		}
 
 		public static float render(FontRenderer fontRenderer, String text, int beginIndex, int endIndex, float posX, float posY, boolean asShadow) {
@@ -258,19 +270,19 @@ public class RenderFontUtil {
 					GlStateManager.color(context.fontRenderer.red, context.fontRenderer.green, context.fontRenderer.blue, context.fontRenderer.alpha);
 					//§の次が無い
 					if (context.isEdit)
-						context.posX += renderChar(context.fontRenderer, '§', context.posX, context.posY, getInvalidDisplayEffects(), context.asShadow);
+						context.posX += renderChar(context, '§', context.posX, context.posY, getInvalidDisplayEffects());
 					else
-						context.posX += renderChar(context.fontRenderer, '§', context.posX, context.posY, Collections.emptyList(), context.asShadow);
+						context.posX += renderChar(context, '§', context.posX, context.posY, Collections.emptyList());
 				}
 				case ESCAPED_SECTION_SIGN -> {
 					if (beginIndex >= wholeEndIndexExcl)
 						return;
 					if (context.isEdit) {
 						GlStateManager.color(context.fontRenderer.red, context.fontRenderer.green, context.fontRenderer.blue, context.fontRenderer.alpha);
-						context.posX += renderChar(context.fontRenderer, '§', context.posX, context.posY, getValidDisplayEffects(), context.asShadow);
+						context.posX += renderChar(context, '§', context.posX, context.posY, getValidDisplayEffects());
 						if (beginIndex + 1 >= wholeEndIndexExcl)
 							return;
-						context.posX += renderChar(context.fontRenderer, '§', context.posX, context.posY, getValidDisplayEffects(), context.asShadow);
+						context.posX += renderChar(context, '§', context.posX, context.posY, getValidDisplayEffects());
 					} else {
 						context.posX += prepareAndRenderChar(context, '§');
 					}
@@ -287,7 +299,7 @@ public class RenderFontUtil {
 							for (int i = Math.max(beginIndex, wholeBeginIndex); i < endIndexExcl; i++) {
 								if (i >= wholeEndIndexExcl)
 									return;
-								context.posX += renderChar(context.fontRenderer, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects(), context.asShadow);
+								context.posX += renderChar(context, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects());
 							}
 						} else {
 							CharArrayRingList ringList = context.getRingList();
@@ -308,7 +320,7 @@ public class RenderFontUtil {
 						for (int i = Math.max(beginIndex, wholeBeginIndex); i < beginIndex + 1 + markerNum; i++) {
 							if (i >= wholeEndIndexExcl)
 								return;
-							context.posX += renderChar(context.fontRenderer, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects(), context.asShadow);
+							context.posX += renderChar(context, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects());
 						}
 					} else {
 						if (type == Type.FORMATTING_RANGE_UNTERMINATED) {
@@ -316,7 +328,7 @@ public class RenderFontUtil {
 							for (int i = Math.max(beginIndex, wholeBeginIndex); i < beginIndex + 1 + markerNum; i++) {
 								if (i >= wholeEndIndexExcl)
 									return;
-								context.posX += renderChar(context.fontRenderer, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects(), context.asShadow);
+								context.posX += renderChar(context, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects());
 							}
 						}
 					}
@@ -329,7 +341,7 @@ public class RenderFontUtil {
 							for (int i = endIndexExcl - markerNum; i < endIndexExcl; i++) {
 								if (i >= wholeEndIndexExcl)
 									return;
-								context.posX += renderChar(context.fontRenderer, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects(), context.asShadow);
+								context.posX += renderChar(context, context.originalText.charAt(i), context.posX, context.posY, getValidDisplayEffects());
 							}
 						}
 					}
@@ -343,7 +355,7 @@ public class RenderFontUtil {
 			for (int i = Math.max(beginIndex, wholeBeginIndex); i < endIndexExcl; i++) {
 				if (i >= wholeEndIndexExcl)
 					return true;
-				context.posX += renderChar(context.fontRenderer, context.originalText.charAt(i), context.posX, context.posY, getInvalidDisplayEffects(), context.asShadow);
+				context.posX += renderChar(context, context.originalText.charAt(i), context.posX, context.posY, getInvalidDisplayEffects());
 			}
 			return false;
 		}
@@ -939,11 +951,12 @@ public class RenderFontUtil {
 		return renderSubString(fontRenderer, text, 0, text.length(), posX, posY, asShadow);
 	}
 	public static float renderRawString(FontRenderer fontRenderer, String text, float posX, float posY, boolean asShadow) {
-		float x = posX;
+		RenderingStringContext context = new RenderingStringContext(fontRenderer, text, posX, posY, true, asShadow, GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING));
 		for (int i = 0; i < text.length(); i++) {
-			x += renderChar(fontRenderer, text.charAt(i), x, posY, Collections.emptyList(), asShadow);
+			context.posX += renderChar(context, context.originalText.charAt(i), context.posX, context.posY, Collections.emptyList());
 		}
-		return x;
+		context.onRenderEnd();
+		return context.posX;
 	}
 	public static float renderSubString(FontRenderer fontRenderer, String text, int beginIndex, int endIndex, float posX, float posY, boolean asShadow) {
 		if (text.isEmpty())
@@ -951,67 +964,39 @@ public class RenderFontUtil {
 		endIndex = Math.min(endIndex, text.length());
 		return FormattedStringObject.render(fontRenderer, text, beginIndex, endIndex, posX, posY, asShadow);
 	}
-	public static float renderChar(FontRenderer fontRenderer, char ch, float posX, float posY, Collection<IRenderingCharEffect> effects, boolean asShadow) {
-		return renderChar(fontRenderer, ch, posX, posY, effects, asShadow, false, GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING));
-	}
-	private static float renderChar(FontRenderer fontRenderer, char ch, float posX, float posY, Collection<IRenderingCharEffect> effects, boolean asShadow, boolean isStringRendering, int framebufferObject) {
+	//	public static float renderChar(FontRenderer fontRenderer, char ch, float posX, float posY, Collection<IRenderingCharEffect> effects, boolean asShadow) {
+//		return renderChar(fontRenderer, ch, posX, posY, effects, asShadow, false, GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING));
+//	}
+	private static float renderChar(RenderingStringContext stringContext, char ch, float posX, float posY, Iterable<IRenderingCharEffect> effects) {
 		if (ch == 0)
 			return 0;
-		float char_rendering_width;
-		float next_render_x_offset;
-		float min_u;
-		float min_v;
-		if (ch == ' ') {
-			char_rendering_width = 3;
-			next_render_x_offset = 4;
-			min_u = 0;
-			min_v = 0;
+		RenderingCharContext charContext;
+		if (CompatSmoothFont.isLoaded()) {
+			charContext = SmoothFontIntegration.createContextSmoothFont(stringContext, ch, posX, posY);
+			if (charContext == null)
+				return 0;
 		} else {
-			int index = getAsciiCharIndex(fontRenderer, ch);
-			if (index != -1) {
-				float cw = getCharWidthRaw(fontRenderer, ch);
-				char_rendering_width = cw - 0.01f;
-				next_render_x_offset = cw + 1;
-				int i = index % 16 * 8;
-				int j = index / 16 * 8;
-				min_u = i / 128f;
-				min_v = j / 128f;
-				fontRenderer.renderEngine.bindTexture(fontRenderer.locationFontTexture);
-			} else {
-				int width_data = fontRenderer.glyphWidth[ch] & 255;
-				int texture_index = ch / 256;
-				float left = width_data >>> 4;
-				float right = width_data & 15;
-				char_rendering_width = (right + 1 - left - 0.02f) / 2;
-				next_render_x_offset = (right + 1 - left) / 2 + 1;
-				if (CompatOptifine.isOptifineLoaded())
-					next_render_x_offset = (int) next_render_x_offset;
-				float f2 = (float) (ch % 16 * 16) + left;
-				float f3 = (float) ((ch & 255) / 16 * 16);
-				min_u = f2 / 256f;
-				min_v = f3 / 256f;
-				fontRenderer.loadGlyphTexture(texture_index);
-				if (asShadow) {
-					posX -= 0.5f;
-					posY -= 0.5f;
-				}
-			}
+			charContext = createContextNormal(stringContext, ch, posX, posY);
 		}
-		//greenとblueが逆なのはバニラが悪い
-		RenderingCharContext context = new RenderingCharContext(fontRenderer, ch, char_rendering_width, CHAR_HEIGHT, asShadow, isStringRendering, min_u, min_v, posX, posY, fontRenderer.red, fontRenderer.blue, fontRenderer.green, fontRenderer.alpha, next_render_x_offset, framebufferObject);
 		for (IRenderingCharEffect effect : effects) {
-			effect.preRender(context);
+			effect.preRender(charContext);
 		}
 
 		//render!
-		if (ch != ' ') {
-			renderCharRaw(context.red, context.green, context.blue, context.alpha, context.minU, context.minV, context.maxU, context.maxV, context.posX + context.renderLeftTopX, context.posY + context.renderLeftTopY, context.renderLeftTopZ, context.posX + context.renderLeftBottomX, context.posY + context.renderLeftBottomY, context.renderLeftBottomZ, context.posX + context.renderRightTopX, context.posY + context.renderRightTopY, context.renderRightTopZ, context.posX + context.renderRightBottomX, context.posY + context.renderRightBottomY, context.renderRightBottomZ);
+		if (!RenderFontUtil.isSpace(ch)) {
+			renderCharRaw(charContext.red, charContext.green, charContext.blue, charContext.alpha,//rgba
+					charContext.minU, charContext.minV, charContext.maxU, charContext.maxV,//uv
+					charContext.posX + charContext.renderLeftTopX, charContext.posY + charContext.renderLeftTopY, charContext.renderLeftTopZ,//leftTop
+					charContext.posX + charContext.renderLeftBottomX, charContext.posY + charContext.renderLeftBottomY, charContext.renderLeftBottomZ,//leftBottom
+					charContext.posX + charContext.renderRightTopX, charContext.posY + charContext.renderRightTopY, charContext.renderRightTopZ,//rightTop
+					charContext.posX + charContext.renderRightBottomX, charContext.posY + charContext.renderRightBottomY, charContext.renderRightBottomZ);//rightBottom
 		}
 
 		for (IRenderingCharEffect effect : effects) {
-			effect.postRender(context);
+			effect.postRender(charContext);
 		}
-		return context.nextRenderXOffset;
+
+		return charContext.nextRenderXOffset;
 	}
 	public static void renderCharRaw(float red, float green, float blue, float alpha, float minU, float minV, float maxU, float maxV, float leftTopX, float leftTopY, float leftTopZ, float leftBottomX, float leftBottomY, float leftBottomZ, float rightTopX, float rightTopY, float rightTopZ, float rightBottomX, float rightBottomY, float rightBottomZ) {
 		GlStateManager.color(red, green, blue, alpha);
@@ -1042,7 +1027,57 @@ public class RenderFontUtil {
 			return width;
 		}
 
-		return renderChar(context.fontRenderer, prepare.charToRender, context.posX, context.posY, context.effects, context.asShadow, true, context.framebufferObject);
+		return renderChar(context, prepare.charToRender, context.posX, context.posY, context.effects);
+	}
+	private static RenderingCharContext createContextNormal(RenderingStringContext context, char ch, float posX, float posY) {
+		FontRenderer fontRenderer = context.fontRenderer;
+		float char_rendering_width;
+		float next_render_x_offset;
+		float min_u;
+		float min_v;
+		if (RenderFontUtil.isSpace(ch)) {
+			next_render_x_offset = CompatFontRenderer.getSpaceWidth(fontRenderer);
+			if (!CompatOptifine.isLoaded())
+				next_render_x_offset = (int) next_render_x_offset;
+			char_rendering_width = next_render_x_offset - 1;
+			min_u = 0;
+			min_v = 0;
+		} else {
+			int index = getAsciiCharIndex(fontRenderer, ch);
+			if (index != -1) {
+				float cw = getCharWidthRaw(fontRenderer, ch);
+				char_rendering_width = cw - 0.01f;
+				next_render_x_offset = cw + 1;
+				int i = index % 16 * 8;
+				int j = index / 16 * 8;
+				min_u = i / 128f;
+				min_v = j / 128f;
+				fontRenderer.renderEngine.bindTexture(fontRenderer.locationFontTexture);
+			} else {
+				int width_data = fontRenderer.glyphWidth[ch] & 255;
+				int texture_index = ch / 256;
+				float left = width_data >>> 4;
+				float right = width_data & 15;
+				char_rendering_width = (right + 1 - left - 0.02f) / 2;
+				next_render_x_offset = (right + 1 - left) / 2 + 1;
+				if (!CompatOptifine.isLoaded())
+					next_render_x_offset = (int) next_render_x_offset;
+				float f2 = (float) (ch % 16 * 16) + left;
+				float f3 = (float) ((ch & 255) / 16 * 16);
+				min_u = f2 / 256f;
+				min_v = f3 / 256f;
+				fontRenderer.loadGlyphTexture(texture_index);
+				if (context.asShadow) {
+					posX -= 0.5f;
+					posY -= 0.5f;
+				}
+			}
+		}
+		float char_rendering_height = CHAR_HEIGHT;
+		float max_u = min_u + char_rendering_width / 128f;
+		float max_v = min_v + char_rendering_height / 128f;
+		//greenとblueが逆なのはバニラが悪い
+		return new RenderingCharContext(context, ch, char_rendering_width, char_rendering_height, min_u, min_v, max_u, max_v, posX, posY, posY + RenderFontUtil.FONT_HEIGHT / 2, fontRenderer.red, fontRenderer.blue, fontRenderer.green, fontRenderer.alpha, next_render_x_offset);
 	}
 
 	//getWidth
@@ -1084,22 +1119,10 @@ public class RenderFontUtil {
 		if (ch == 0)
 			return 0;
 		float char_width;
-		if (ch == ' ') {
-			char_width = 3;
+		if (RenderFontUtil.isSpace(ch)) {
+			char_width = CompatFontRenderer.getSpaceWidth(fontRenderer) - 1;
 		} else {
-			int index = getAsciiCharIndex(fontRenderer, ch);
-			if (index != -1) {
-				if (CompatOptifine.isOptifineLoaded())
-					char_width = CompatFontRenderer.getCharWidthFloat(fontRenderer, ch) - 1;
-				else
-					char_width = fontRenderer.charWidth[index] - 1;
-			} else {
-				int width_data = fontRenderer.glyphWidth[ch] & 255;
-				int left = width_data >>> 4;
-				int right = width_data & 15;
-				float w = (right + 1 - left) / 2f;
-				char_width = CompatOptifine.isOptifineLoaded() ? (int) w : w;
-			}
+			char_width = CompatFontRenderer.getCharWidthFloat(fontRenderer, ch) - 1;
 		}
 		return char_width;
 	}
@@ -1454,11 +1477,11 @@ public class RenderFontUtil {
 			return -1;
 		return ASCII_CHARS.indexOf(c);
 	}
-	public static float getOffsetBold(FontRenderer fontRenderer) {
-		if (CompatOptifine.isOptifineLoaded())
-			return CompatFontRenderer.getOffsetBold(fontRenderer);
-		else
-			return 1;
+	public static float getOffsetBold(FontRenderer fontRenderer, char ch) {
+		return CompatFontRenderer.getOffsetBold(fontRenderer, ch);
+	}
+	public static boolean isSpace(char ch) {
+		return ch == ' ' || ch == '\u00a0';//nbsp
 	}
 
 	public static class MeasuringResult {
@@ -1478,5 +1501,304 @@ public class RenderFontUtil {
 			this.lastWidth = lastWidth;
 			this.lines = lines;
 		}
+	}
+
+	private static class SmoothFontIntegration {
+
+		@Nullable
+		public static RenderingCharContext createContextSmoothFont(RenderingStringContext context, char ch, float posX, float posY) {
+			RenderingStringContext.SmoothFontIntegration smoothFontIntegration = context.smoothFontIntegration;
+			FontRenderer fontRenderer = context.fontRenderer;
+			boolean asShadow = context.asShadow;
+			FontRendererHook fontRendererHook = CompatFontRenderer_SmoothFont.getFontRendererHook(fontRenderer);
+			ACC_FontRendererHook accFontRendererHook = (ACC_FontRendererHook) fontRendererHook;
+			FontTextureManager fontTextureManager = accFontRendererHook.get_fontTextureManager();
+			float centerY = posY + RenderFontUtil.FONT_HEIGHT / 2;
+			int id = RenderFontUtil.getAsciiCharIndex(fontRenderer, ch);
+			boolean isAscii = id >= 0;
+
+			if (RenderFontUtil.isSpace(ch)) {
+				float next_render_x_offset = CompatFontRenderer.getSpaceWidth(fontRenderer);
+				next_render_x_offset = applyDoDrawHook(fontRendererHook, next_render_x_offset);
+				float char_rendering_width = next_render_x_offset - 1;
+				float min_u = 0;
+				float min_v = 0;
+				float char_rendering_height = CHAR_HEIGHT;
+				float max_u = min_u + char_rendering_width / 128f;
+				float max_v = min_v + char_rendering_height / 128f;
+				//greenとblueが逆なのはバニラが悪い
+				return new RenderingCharContext(context, ch, char_rendering_width, char_rendering_height, min_u, min_v, max_u, max_v, posX, posY, posY + RenderFontUtil.FONT_HEIGHT / 2, fontRenderer.red, fontRenderer.blue, fontRenderer.green, fontRenderer.alpha, next_render_x_offset);
+			}
+
+			float renderXOffset = 0;
+			float renderYOffset = 0;
+			float next_render_x_offset;
+			float leftPx;
+			float texWidthPx;
+			float factor;
+			FontTexture texture;
+			FontRasterizer rasterizer = accFontRendererHook.get_rasterizer();
+			boolean asBold = accFontRendererHook.get_boldChecker().isBold(posX, id, asShadow, !isAscii);//TODO
+			boolean mcDefaultFontFlag;
+			if (isAscii) {
+				//renderDefaultCharHook
+				accFontRendererHook.get_renderCharReplacedChecker().renderDefaultCharWorked = true;
+				ResourceLocation curResLoc = fontRendererHook.changeFont ? ACC_FontRendererHook.get_osFontDefaultPageLocation() : fontRenderer.locationFontTexture;
+				texture = fontTextureManager.bindTexture(curResLoc);
+				factor = texture.actualFontRes / 16.0F;
+				float width;
+				if (fontRendererHook.changeFont) {
+					mcDefaultFontFlag = false;
+//					if (accFontRendererHook.get_renderStringAtPosInoperative()) {
+					if (asBold) {
+						posX -= 0.5F;
+					}
+
+					if (asShadow) {
+						posX -= 0.5F;
+						posY -= 0.5F;
+						centerY -= 0.5F;
+					}
+//					}
+
+					GlyphImage gi = rasterizer.getGlyphImage(256);
+					switch (fontRendererHook.precisionMode) {
+						case 0:
+							width = rasterizer.charWidthFloat[id];
+							break;
+						case 1:
+						default:
+							width = rasterizer.charWidthFloat[id];
+							if (CommonConfig.currentConfig.widthErrorCorrection) {
+								if (asShadow) {
+									renderXOffset += accFontRendererHook.get_errCorrectorShadow().getCorrectedPosX(posX, posY, width, gi.fontRes, asBold, false) - posX;
+								} else {
+									renderXOffset += accFontRendererHook.get_errCorrector().getCorrectedPosX(posX, posY, width, gi.fontRes, asBold, false) - posX;
+								}
+							}
+							break;
+						case 2:
+							if (fontRendererHook.optifineCharWidthFloat != null) {
+								width = rasterizer.charWidthFloat[id];
+							} else {
+								width = (float) rasterizer.charWidthInt[id];
+							}
+					}
+
+					if (CommonConfig.currentConfig.fontAlignBaseline) {
+						renderYOffset += gi.baselineGap + rasterizer.sizeAdjPosY;
+					} else {
+						int fontId = rasterizer.fontId[ch];
+						FontProperty fontProp = rasterizer.fontProp[0][fontId];
+						renderYOffset += gi.baselineGap + fontProp.ascentGap;
+					}
+
+					texWidthPx = gi.drawingChWidth[id] * texture.scaleFactor;
+					renderXOffset -= gi.fontOriginPosX;
+				} else {
+					mcDefaultFontFlag = true;
+					if (fontRendererHook.optifineCharWidthFloat != null) {
+						width = fontRendererHook.optifineCharWidthFloat[id];
+					} else {
+						width = (float) fontRendererHook.mcCharWidth[id];
+					}
+
+					texWidthPx = (width - 0.01F) * 2.0F * factor;
+				}
+
+				accFontRendererHook.resetTexEnvAndBlend();
+				if (!CommonConfig.currentConfig.performanceMode) {
+					fontTextureManager.setAnisotropicFilter(curResLoc, smoothFontIntegration.anisotropicFilterEnabled);
+					if (!smoothFontIntegration.exclusionCondDefault) {
+						accFontRendererHook.get_fontShader().setShaderParams(fontRendererHook, false);
+						fontTextureManager.setTexParams(curResLoc, FontRendererHook.texFilterSettingId);
+					} else {
+						fontTextureManager.setTexParamsNearest(curResLoc);
+					}
+				} else {
+					fontTextureManager.setTexParams(curResLoc, FontRendererHook.texFilterSettingId);
+				}
+				next_render_x_offset = width;
+				leftPx = 0;
+			} else {
+				//これが無いとつじつまが合わない
+				{
+					if (asBold) {
+						posX -= 0.5F;
+					}
+					if (asShadow) {
+						posX -= 0.5F;
+						posY -= 0.5F;
+						centerY -= 0.5F;
+					}
+				}
+				byte[] glyphWidth = fontRenderer.glyphWidth;
+				accFontRendererHook.get_renderCharReplacedChecker().renderUnicodeCharWorked = true;
+				mcDefaultFontFlag = false;
+				//italic省略はさせません
+//			if (!CommonConfig.currentConfig.performanceMode && CommonConfig.currentConfig.disableSmallItalic && fontScale < 1.05F) {
+//				italic = false;
+//			}
+
+				int page = ch / 256;
+				ResourceLocation unicodePageLocation = fontRendererHook.changeFont ? accFontRendererHook.getOsFontUnicodePageLocation(page) : fontRendererHook.getUnicodePageLocation(page);
+				float width;
+				float left;
+				float right;
+				if (fontRendererHook.changeFont) {
+					width = rasterizer.glyphWidthFloat8[ch];
+					if (width == 0.0F) {
+						return null;
+					}
+
+					texture = fontTextureManager.bindTexture(unicodePageLocation);
+					factor = texture.actualFontRes / 16.0F;
+//					if (accFontRendererHook.get_renderStringAtPosInoperative()) {
+					fontRendererHook.boldFlag = accFontRendererHook.get_boldChecker().isBold(posX, ch, asShadow, true);
+//					}
+
+					left = 0.0F;
+					GlyphImage gi = rasterizer.getGlyphImage(page);
+					switch (fontRendererHook.precisionMode) {
+						case 0:
+							break;
+						case 1:
+						default:
+							if (CommonConfig.currentConfig.widthErrorCorrection) {
+								if (asShadow) {
+									renderXOffset += accFontRendererHook.get_errCorrectorShadow().getCorrectedPosX(posX, posY, width, gi.fontRes, asBold, true) - posX;
+								} else {
+									renderXOffset += accFontRendererHook.get_errCorrector().getCorrectedPosX(posX, posY, width, gi.fontRes, asBold, true) - posX;
+								}
+							}
+							break;
+						case 2:
+							right = (float) ((rasterizer.glyphWidthByte[ch] & 15) + 1);
+							width = (right - left) / 2.0F;
+					}
+
+					if (CommonConfig.currentConfig.fontAlignBaseline) {
+						renderYOffset += gi.baselineGap + rasterizer.sizeAdjPosY;
+					} else {
+						int fontId = rasterizer.fontId[ch];
+						FontProperty fontProp = rasterizer.fontProp[1][fontId];
+						renderYOffset += gi.baselineGap + fontProp.ascentGap;
+					}
+
+					texWidthPx = gi.drawingChWidth[ch % 256] * texture.scaleFactor;
+					renderXOffset -= gi.fontOriginPosX;
+				} else {
+					if (glyphWidth[ch] == 0) {
+						return null;
+					}
+
+					texture = fontTextureManager.bindTexture(unicodePageLocation);
+					factor = texture.actualFontRes / 16.0F;
+					left = (float) ((glyphWidth[ch] & 240) >>> 4);
+					right = (float) ((glyphWidth[ch] & 15) + 1);
+					width = (right - left) / 2.0F + 1.0F;
+					texWidthPx = (right - left - 0.02F) * factor;
+				}
+
+				leftPx = left * factor;
+				accFontRendererHook.resetTexEnvAndBlend();
+				if (!CommonConfig.currentConfig.performanceMode) {
+					fontTextureManager.setAnisotropicFilter(unicodePageLocation, smoothFontIntegration.anisotropicFilterEnabled);
+					if (!smoothFontIntegration.exclusionCondUnicode) {
+						accFontRendererHook.get_fontShader().setShaderParams(fontRendererHook, true);
+						fontTextureManager.setTexParams(unicodePageLocation, FontRendererHook.texFilterSettingId);
+					} else {
+						fontTextureManager.setTexParamsNearest(unicodePageLocation);
+					}
+				} else {
+					fontTextureManager.setTexParams(unicodePageLocation, FontRendererHook.texFilterSettingId);
+				}
+
+				next_render_x_offset = width;
+			}
+
+			float char_rendering_width;
+			float char_rendering_height;
+			float min_u, max_u;
+			float min_v, max_v;
+			{
+				//renderCharCommon
+				factor *= 2;
+				float chImageSize = texture.chImageSizePx;
+				float borderWidth = texture.borderWidthPx;
+				int texSize = texture.texSizePx;
+				float boxSize = chImageSize + borderWidth * 2.0F;
+				float texX = (float) (ch % 16) * boxSize + borderWidth + leftPx;
+				float texY = (float) ((ch & 255) / 16) * boxSize + borderWidth;
+
+				min_u = (texX - borderWidth) / (float) texSize;
+				max_u = (texX + texWidthPx + borderWidth) / (float) texSize;
+				min_v = (texY - borderWidth) / (float) texSize;
+				max_v = (texY + chImageSize + borderWidth) / (float) texSize;
+				char_rendering_width = (texWidthPx + borderWidth * 2) / factor;
+				char_rendering_height = (chImageSize + borderWidth * 2) / factor;
+
+				renderXOffset -= borderWidth / factor;
+				renderYOffset -= borderWidth / factor;
+				if (!CommonConfig.currentConfig.performanceMode) {
+					if (smoothFontIntegration.alignToPixelCond) {
+						if (asShadow && accFontRendererHook.get_fontScale() == 1.0F && !mcDefaultFontFlag) {
+							posY += 0.5F;
+						}
+
+						posY = accFontRendererHook.alignToPixel(posY);
+					}
+
+					//RenderingStringContextへ移動
+//					if (asBold && fontRendererHook.roundedFontScale >= 3.0F) {
+//						fontRendererHook.renderChar(posX - 0.25F, posY, texX, texY, texWidthPx, it, texSize, chImageSize, borderWidth, factor);
+//					}
+				} else if (asBold) {
+					//RenderingStringContextへ移動
+//					int scaleFactor = accFontRendererHook.getScaleFactor();
+//					if (scaleFactor >= 3) {
+//						fontRendererHook.renderChar(posX - 0.25F, posY, texX, texY, texWidthPx, it, texSize, chImageSize, borderWidth, factor);
+//					}
+				}
+			}
+
+			//renderChar
+			if (asShadow) {
+				posX += FontRendererHook.shadowAdjustVal;
+				posY += FontRendererHook.shadowAdjustVal;
+				centerY += FontRendererHook.shadowAdjustVal;
+			}
+
+			next_render_x_offset = applyDoDrawHook(fontRendererHook, next_render_x_offset);
+
+			//greenとblueが逆なのはバニラが悪い
+			RenderingCharContext charContext = new RenderingCharContext(context, ch, char_rendering_width, char_rendering_height, min_u, min_v, max_u, max_v, posX, posY, centerY, fontRenderer.red, fontRenderer.blue, fontRenderer.green, fontRenderer.alpha, next_render_x_offset);
+			charContext.renderLeftTopX += renderXOffset;
+			charContext.renderLeftBottomX += renderXOffset;
+			charContext.renderRightTopX += renderXOffset;
+			charContext.renderRightBottomX += renderXOffset;
+			charContext.renderLeftTopY += renderYOffset;
+			charContext.renderLeftBottomY += renderYOffset;
+			charContext.renderRightTopY += renderYOffset;
+			charContext.renderRightBottomY += renderYOffset;
+			return charContext;
+		}
+
+		private static float applyDoDrawHook(FontRendererHook fontRendererHook, float xOffset) {
+			if (fontRendererHook.changeFont) {
+				switch (fontRendererHook.precisionMode) {
+					case 0:
+						break;//nothing to do
+					case 1:
+						xOffset = (float) FontUtils.toNormalWidth(xOffset);
+						break;
+					case 2:
+						xOffset = (float) ((int) xOffset);
+						break;
+				}
+			}
+			return xOffset;
+		}
+
 	}
 }

@@ -29,7 +29,7 @@ public class TF_GuiScreenBook {
 	public static ClassVisitor appendVisitor(ClassVisitor cv, String className) {
 		if (!TARGET.equals(className))
 			return cv;
-		MyClassVisitor newcv = new MyClassVisitor(cv, className, 3) {
+		MyClassVisitor newcv = new MyClassVisitor(cv, className) {
 			@Override
 			public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 				MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
@@ -86,7 +86,7 @@ public class TF_GuiScreenBook {
 				}
 				return mv;
 			}
-		};
+		}.setSuccessExpected(3);
 		newcv = new ReplaceMethodAdapter(newcv, drawScreen) {
 			@Override
 			protected void methodBody(MethodVisitor mv) {

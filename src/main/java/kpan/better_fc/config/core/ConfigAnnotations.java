@@ -1,4 +1,4 @@
-package kpan.better_fc.config;
+package kpan.better_fc.config.core;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -21,53 +21,36 @@ public class ConfigAnnotations {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
-	public @interface BooleanValue {
-		boolean defaultValue();
+	public @interface ConfigOrder {
+		int value() default 0;
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
-	public @interface IntValue {
-		int defaultValue();
+	public @interface RangeInt {
 		int minValue() default Integer.MIN_VALUE;
 		int maxValue() default Integer.MAX_VALUE;
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
-	public @interface LongValue {
-		long defaultValue();
+	public @interface RangeLong {
 		long minValue() default Long.MIN_VALUE;
 		long maxValue() default Long.MAX_VALUE;
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
-	public @interface FloatValue {
-		float defaultValue();
+	public @interface RangeFloat {
 		float minValue() default -Float.MAX_VALUE;
 		float maxValue() default Float.MAX_VALUE;
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
-	public @interface DoubleValue {
-		double defaultValue();
+	public @interface RangeDouble {
 		double minValue() default -Double.MAX_VALUE;
 		double maxValue() default Double.MAX_VALUE;
-	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
-	public @interface StringValue {
-		String defaultValue();
-	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
-	public @interface EnumValue {
-		Class<? extends Enum<?>> enumClass();
-		String defaultValueString();
 	}
 
 }
