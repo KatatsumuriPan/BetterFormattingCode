@@ -1,0 +1,25 @@
+# Publishes built jars to distribution platforms
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      mod_platform:
+        description: 'Mod platform'
+        type: choice
+        default: 'CurseForge and Modrinth and Github'
+        options:
+          - 'CurseForge and Modrinth and Github'
+          - 'CurseForge'
+          - 'Modrinth'
+          - 'Github'
+      commitish:
+        description: 'Commit id'
+
+jobs:
+  call_other:
+    uses: KatatsumuriPan/KpansGitHubActions/.github/workflows/publish_base.yml@develop
+    with:
+      mod_platform: "${{ github.event.inputs.mod_platform }}"
+      commitish: "${{ github.event.inputs.commitish }}"
+
