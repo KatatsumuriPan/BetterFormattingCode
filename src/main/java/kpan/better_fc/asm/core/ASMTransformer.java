@@ -1,5 +1,6 @@
 package kpan.better_fc.asm.core;
 
+import kpan.better_fc.asm.compat.CompatSmoothFont;
 import kpan.better_fc.asm.compat.CustomAdapterForDeobfEnv;
 import kpan.better_fc.asm.core.adapters.MixinAccessorAdapter;
 import kpan.better_fc.asm.tf.TF_CPacketChatMessage;
@@ -62,7 +63,7 @@ public class ASMTransformer implements IClassTransformer {
 	public byte[] transform(String name, String transformedName, byte[] bytes) {
 		try {
 			MyAsmNameRemapper.init();
-			if (AsmUtil.isDeobfEnvironment()) {
+			if (AsmUtil.isDeobfEnvironment() && CompatSmoothFont.isLoaded()) {
 				if (transformedName.startsWith("kpan.better_fc.asm.compat.CustomAdapter"))
 					return bytes;
 				bytes = CustomAdapterForDeobfEnv.transform(name, transformedName, bytes);
