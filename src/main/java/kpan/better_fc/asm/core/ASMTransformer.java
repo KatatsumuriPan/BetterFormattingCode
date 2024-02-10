@@ -64,7 +64,7 @@ public class ASMTransformer implements IClassTransformer {
 		try {
 			MyAsmNameRemapper.init();
 			if (AsmUtil.isDeobfEnvironment() && CompatSmoothFont.isLoaded()) {
-				if (transformedName.startsWith("kpan.better_fc.asm.compat.CustomAdapter"))
+				if (transformedName.startsWith("kpan.better_fc.asm.compat.CustomAdapterForDeobfEnv"))
 					return bytes;
 				bytes = CustomAdapterForDeobfEnv.transform(name, transformedName, bytes);
 			}
