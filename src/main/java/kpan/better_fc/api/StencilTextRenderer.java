@@ -38,6 +38,8 @@ public class StencilTextRenderer implements IStringRenderEndListener {
 		GL11.glStencilFunc(GL11.GL_EQUAL, 10, ~0);
 		GlStateManager.colorMask(true, true, true, false);
 		GlStateManager.color(1, 1, 1, 1);
+		int glTextureEnvMode = GL11.glGetTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE);
+		GlStateManager.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);//これが無いと、SmoothFontと組み合わせたときに半透明の文字が真っ白になる
 		renderer.accept(context);
 		GL11.glDisable(GL11.GL_STENCIL_TEST);
 
@@ -63,6 +65,7 @@ public class StencilTextRenderer implements IStringRenderEndListener {
 			GlStateManager.enableDepth();
 		if (fog_enabled)
 			GlStateManager.enableFog();
+		GlStateManager.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, glTextureEnvMode);//これが無いと、SmoothFontと組み合わせたときに半透明の文字が真っ白になる
 	}
 
 	//renderFrameBufferExt(false)からdisableDepthを抜いたもの
