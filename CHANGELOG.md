@@ -1,5 +1,11 @@
 # Changelog
 
+### [1.12.2-forge-2.0.1](https://github.com/KatatsumuriPan/BetterFormattingCode/releases/tag/1.12.2-forge-2.0.1) - 2024-02-11
+
+- Fix crashing bug if SmoothFont is not found.
+- Fix StencilTextRenderer bugs.
+- Remove test formatting codes.
+
 ### [1.12.2-forge-2.0.0](https://github.com/KatatsumuriPan/BetterFormattingCode/releases/tag/1.12.2-forge-2.0.0) - 2024-02-08
 
 - Add SmoothFont compatibility.

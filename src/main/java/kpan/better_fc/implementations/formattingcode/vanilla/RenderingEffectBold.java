@@ -27,7 +27,12 @@ public class RenderingEffectBold implements IRenderingEffectFancyStyle {
 	public static void renderBold(RenderingCharContext context) {
 		if (!RenderFontUtil.isSpace(context.charToRender)) {
 			float offset = getOffset(context.fontRenderer, context.charToRender);
-			RenderFontUtil.renderCharRaw(context.red, context.green, context.blue, context.alpha, context.minU, context.minV, context.maxU, context.maxV, context.posX + context.renderLeftTopX + offset, context.posY + context.renderLeftTopY, context.renderLeftTopZ, context.posX + context.renderLeftBottomX + offset, context.posY + context.renderLeftBottomY, context.renderLeftBottomZ, context.posX + context.renderRightTopX + offset, context.posY + context.renderRightTopY, context.renderRightTopZ, context.posX + context.renderRightBottomX + offset, context.posY + context.renderRightBottomY, context.renderRightBottomZ);
+			RenderFontUtil.renderCharRaw(context.red, context.green, context.blue, context.alpha,//rgba
+					context.minU, context.minV, context.maxU, context.maxV,//uv
+					context.posX + context.renderLeftTopX + offset, context.posY + context.renderLeftTopY, context.renderLeftTopZ,//leftTop
+					context.posX + context.renderLeftBottomX + offset, context.posY + context.renderLeftBottomY, context.renderLeftBottomZ,//leftBottom
+					context.posX + context.renderRightTopX + offset, context.posY + context.renderRightTopY, context.renderRightTopZ,//rightTop
+					context.posX + context.renderRightBottomX + offset, context.posY + context.renderRightBottomY, context.renderRightBottomZ);//rightBottom
 			if (context.stringContext.smoothFontIntegration != null)
 				context.stringContext.smoothFontIntegration.renderBold(context, offset);
 		}

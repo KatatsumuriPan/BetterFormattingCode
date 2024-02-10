@@ -29,7 +29,7 @@ public abstract class RenderingEffectStencilText implements IRenderingEffectColo
 			GlStateManager.enableAlpha();
 			GlStateManager.alphaFunc(GL11.GL_GREATER, 0);
 			GlStateManager.colorMask(false, false, false, true);
-			GlStateManager.tryBlendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.SRC_ALPHA, DestFactor.ZERO);
+			GlStateManager.tryBlendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.SRC_ALPHA, DestFactor.ONE);
 			framebuffer.bindFramebuffer(false);
 		}
 	}

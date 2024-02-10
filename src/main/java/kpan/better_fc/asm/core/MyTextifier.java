@@ -1,7 +1,5 @@
-package kpan.test.asm.core;
+package kpan.better_fc.asm.core;
 
-import kpan.better_fc.asm.core.AsmUtil;
-import kpan.better_fc.asm.core.MyAsmNameRemapper;
 import org.objectweb.asm.util.Textifier;
 
 import javax.annotation.Nullable;

@@ -1,6 +1,7 @@
 package kpan.better_fc.asm.hook;
 
 import kpan.better_fc.asm.core.ASMTransformer;
+import kpan.better_fc.asm.core.AsmUtil;
 import kpan.better_fc.util.MyReflectionHelper;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.common.asm.ASMTransformerWrapper.TransformerWrapper;
@@ -27,6 +28,10 @@ public class HK_Loader {
 				}).findFirst();
 		if (!smoothfont_idx.isPresent())
 			return;
+		if (AsmUtil.isDeobfEnvironment()) {
+			transformers.remove(smoothfont_idx.getAsInt());
+			return;
+		}
 		int my_idx = IntStream.range(0, transformers.size())
 				.filter(i -> {
 					IClassTransformer transformer = transformers.get(i);

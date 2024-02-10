@@ -1,6 +1,5 @@
 package kpan.better_fc.asm.core;
 
-import kpan.test.asm.core.MyTextifier;
 import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;

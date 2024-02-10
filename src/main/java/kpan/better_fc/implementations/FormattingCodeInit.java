@@ -1,9 +1,6 @@
 package kpan.better_fc.implementations;
 
 import kpan.better_fc.api.FormattingCodesRegistry;
-import kpan.better_fc.implementations.formattingcode.test.FormattingCodeMirror;
-import kpan.better_fc.implementations.formattingcode.test.FormattingCodeRainbow;
-import kpan.better_fc.implementations.formattingcode.test.FormattingCodeRotate;
 import kpan.better_fc.implementations.formattingcode.vanilla.FormattingCodeColor;
 import kpan.better_fc.implementations.formattingcode.vanilla.FormattingCodeFancyStyle;
 import kpan.better_fc.implementations.formattingcode.vanilla.FormattingCodeReset;
@@ -32,9 +29,5 @@ public class FormattingCodeInit {
 		FormattingCodesRegistry.register(new FormattingCodeFancyStyle(RenderingEffectStrikeThrough.INSTANCE, "§m"), 'm', 'M');
 		FormattingCodesRegistry.register(new FormattingCodeFancyStyle(RenderingEffectUnderline.INSTANCE, "§n"), 'n', 'N');
 		FormattingCodesRegistry.register(new FormattingCodeFancyStyle(RenderingEffectItalic.INSTANCE, "§o"), 'o', 'O');
-		//test
-		FormattingCodesRegistry.register(FormattingCodeRainbow.INSTANCE, "RAINBOW");
-		FormattingCodesRegistry.register(FormattingCodeMirror.INSTANCE, 'p');
-		FormattingCodesRegistry.register(FormattingCodeRotate.INSTANCE, "rot");
 	}
 }
