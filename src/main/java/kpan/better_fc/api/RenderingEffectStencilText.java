@@ -23,6 +23,7 @@ public abstract class RenderingEffectStencilText implements IRenderingEffectColo
 			context.red = 1;
 			context.green = 1;
 			context.blue = 1;
+			GL11.glStencilMask(255);
 			GL11.glStencilFunc(GL11.GL_ALWAYS, 10, ~0);
 			GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
 			GL11.glEnable(GL11.GL_STENCIL_TEST);
