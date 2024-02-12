@@ -91,4 +91,33 @@ public class RenderingEffects {
 			effect.onFixingCancelled(context, ch);
 		}
 	}
+
+	public void beginBatchStencilColor(RenderingStringContext context) {
+		if (context.asShadow)
+			return;
+		RenderingEffectStencilText effect = null;
+		for (IRenderingCharEffect e : context.effects.effects) {
+			if (e instanceof RenderingEffectStencilText)
+				effect = (RenderingEffectStencilText) e;
+		}
+		if (effect == null)
+			return;
+		context.stencilColorPrepared = true;
+		effect.beginRender(context.framebufferObject);
+	}
+
+	public void endBatchStencilColor(RenderingStringContext context) {
+		if (context.asShadow)
+			return;
+		RenderingEffectStencilText effect = null;
+		for (IRenderingCharEffect e : context.effects.effects) {
+			if (e instanceof RenderingEffectStencilText)
+				effect = (RenderingEffectStencilText) e;
+		}
+		if (effect == null)
+			return;
+		effect.endRender(context);
+		context.stencilColorPrepared = false;
+	}
+
 }

@@ -40,6 +40,8 @@ public class RenderingStringContext {
 	public float posX;
 	public float posY;
 
+	public boolean stencilColorPrepared = false;
+
 	@Nullable
 	private final CharArrayRingList ringList;
 

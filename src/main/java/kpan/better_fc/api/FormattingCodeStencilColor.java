@@ -1,13 +1,13 @@
 package kpan.better_fc.api;
 
-import java.util.function.Consumer;
-import kpan.better_fc.api.contexts.string.RenderingStringContext;
+import kpan.better_fc.util.GLStateManagerUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.shader.Framebuffer;
 
 public abstract class FormattingCodeStencilColor extends FormattingCodeSimple {
-	public final StencilTextRenderer renderer;
-	protected FormattingCodeStencilColor(String formattingCode, Consumer<RenderingStringContext> renderer) {
+	public Framebuffer framebuffer = null;
+	protected FormattingCodeStencilColor(String formattingCode) {
 		super(formattingCode);
-		this.renderer = new StencilTextRenderer(renderer);
 	}
 
 	protected abstract RenderingEffectStencilText getEffect(RenderingEffects effects, String option);
@@ -19,13 +19,15 @@ public abstract class FormattingCodeStencilColor extends FormattingCodeSimple {
 		effects.add(effect);
 	}
 
-	@Override
-	public void applyFormat(RenderingStringContext context, String option) {
-		if (!context.listners.contains(renderer)) {
-			context.listners.add(renderer);
-			renderer.clear(context);
+	public void init() {
+		if (framebuffer == null || GLStateManagerUtil.viewportWidth != framebuffer.framebufferWidth || GLStateManagerUtil.viewportHeight != framebuffer.framebufferHeight) {
+			int w = Math.max(GLStateManagerUtil.viewportWidth, Minecraft.getMinecraft().displayWidth);
+			int h = Math.max(GLStateManagerUtil.viewportHeight, Minecraft.getMinecraft().displayHeight);
+			if (framebuffer != null)
+				framebuffer.deleteFramebuffer();
+			framebuffer = new Framebuffer(w, h, true);
+			framebuffer.setFramebufferColor(0.0F, 0.0F, 0.0F, 0.0F);
+			framebuffer.enableStencil();
 		}
-		super.applyFormat(context, option);
 	}
-
 }

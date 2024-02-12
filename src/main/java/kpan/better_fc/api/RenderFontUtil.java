@@ -253,19 +253,26 @@ public class RenderFontUtil {
 		private void render(RenderingStringContext context, int wholeBeginIndex, int wholeEndIndexExcl) {
 			switch (type) {
 				case TEXT -> {
-					for (int i = Math.max(beginIndex, wholeBeginIndex); i < endIndexExcl; i++) {
-						if (i >= wholeEndIndexExcl)
-							return;
-						char ch = context.originalText.charAt(i);
-						if (context.isEdit) {
-							context.posX += prepareAndRenderChar(context, ch);
-						} else {
-							CharArrayRingList ringList = context.getRingList();
-							ringList.addLast(ch);
-							while (!ringList.isEmpty()) {
-								context.posX += prepareAndRenderChar(context, ringList.pollFirst());
+					int begin = Math.max(beginIndex, wholeBeginIndex);
+					if (begin < endIndexExcl) {
+						context.effects.beginBatchStencilColor(context);
+						for (int i = begin; i < endIndexExcl; i++) {
+							if (i >= wholeEndIndexExcl) {
+								context.effects.endBatchStencilColor(context);
+								return;
+							}
+							char ch = context.originalText.charAt(i);
+							if (context.isEdit) {
+								context.posX += prepareAndRenderChar(context, ch);
+							} else {
+								CharArrayRingList ringList = context.getRingList();
+								ringList.addLast(ch);
+								while (!ringList.isEmpty()) {
+									context.posX += prepareAndRenderChar(context, ringList.pollFirst());
+								}
 							}
 						}
+						context.effects.endBatchStencilColor(context);
 					}
 				}
 				case SINGLE_SECTION_SIGN -> {
