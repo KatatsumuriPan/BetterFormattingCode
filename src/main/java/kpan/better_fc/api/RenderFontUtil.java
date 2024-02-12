@@ -865,6 +865,7 @@ public class RenderFontUtil {
 				if (ch == '\n') {
 					list.add(buffered + text.substring(startIndex, i));
 					startIndex = i + 1;
+					whiteSpaceIdx = -1;
 					currentWidth = 0;
 					buffered.setLength(0);
 					if (keepFormatting)
