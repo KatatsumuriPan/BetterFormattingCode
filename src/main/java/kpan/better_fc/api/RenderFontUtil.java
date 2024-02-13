@@ -871,39 +871,44 @@ public class RenderFontUtil {
 					if (keepFormatting)
 						buffered.append(prevFormat);
 				} else if (ch == ' ') {
-					whiteSpaceIdx = i;
+					if (i > startIndex)
+						whiteSpaceIdx = i;
 				} else {
 					float w = getCharWidthWithSpace(fontRenderer, ch, effects);
-					if (currentWidth + w > wrapWidth) {
-						if (whiteSpaceIdx == -1 && newLineIfNoSpace) {
-							//空白が無いので全て次の行に持っていく
-							list.add("");
-							currentWidth -= splitArgs.beforeWidth;
-							newLineIfNoSpace = false;
-							if (currentWidth + w <= wrapWidth) {
-								currentWidth += w;
-								continue;
-							}
-						}
-						currentWidth = 0;
-						if (whiteSpaceIdx == -1) {
-							list.add(buffered + text.substring(startIndex, i) + StringUtils.join(ListUtil.descendingIteratorOf(closeMarkerStack), ""));
-							startIndex = i;//i番目の文字を含む
-						} else {
-							list.add(buffered + text.substring(startIndex, whiteSpaceIdx) + StringUtils.join(ListUtil.descendingIteratorOf(closeMarkerStack), ""));
-							if (removeWhiteSpace) {
-								startIndex = whiteSpaceIdx + 1;//空白を含めない
-							} else {
-								startIndex = whiteSpaceIdx;
-								currentWidth += getCharWidthRaw(fontRenderer, ' ');
-							}
-							whiteSpaceIdx = -1;
-						}
-						buffered.setLength(0);
-						if (keepFormatting)
-							buffered.append(prevFormat);
+					if (currentWidth + w <= wrapWidth) {
+						currentWidth += w;
+						continue;
 					}
-					currentWidth += w;
+					if (whiteSpaceIdx == -1 && newLineIfNoSpace) {
+						//空白が無いので全て次の行に持っていく
+						list.add("");
+						currentWidth -= splitArgs.beforeWidth;
+						newLineIfNoSpace = false;
+						if (currentWidth + w <= wrapWidth) {
+							currentWidth += w;
+							continue;
+						}
+					}
+					if (whiteSpaceIdx == -1) {
+						list.add(buffered + text.substring(startIndex, i) + StringUtils.join(ListUtil.descendingIteratorOf(closeMarkerStack), ""));
+						startIndex = i;//i番目の文字を含む
+						currentWidth = w;
+					} else {
+						list.add(buffered + text.substring(startIndex, whiteSpaceIdx) + StringUtils.join(ListUtil.descendingIteratorOf(closeMarkerStack), ""));
+						if (removeWhiteSpace) {
+							startIndex = whiteSpaceIdx + 1;//空白を含めない
+							currentWidth = 0;
+							i = whiteSpaceIdx;//読み込み位置は空白の直後(i++含めて)に戻す
+						} else {
+							startIndex = whiteSpaceIdx;
+							currentWidth = 0;
+							i = whiteSpaceIdx - 1;//読み込み位置は空白の直前(i++含めて)に戻す
+						}
+						whiteSpaceIdx = -1;
+					}
+					buffered.setLength(0);
+					if (keepFormatting)
+						buffered.append(prevFormat);
 				}
 			}
 			if (startIndex < text.length())
