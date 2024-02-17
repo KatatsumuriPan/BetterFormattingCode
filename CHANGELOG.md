@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.12.2-forge-2.2.0](https://github.com/KatatsumuriPan/BetterFormattingCode/releases/tag/1.12.2-forge-2.2.0) - 2024-02-17
+
+- Add Better Line Break compatibility.
+- Extend Clipboard(GTCEu) text length limit to 65535.
+- Fix crashing bug.
+- Fix stencil mask bug.
+
 ### [1.12.2-forge-2.1.0](https://github.com/KatatsumuriPan/BetterFormattingCode/releases/tag/1.12.2-forge-2.1.0) - 2024-02-12
 
 - Add GTCEu compatibility(Item:Clipboard).

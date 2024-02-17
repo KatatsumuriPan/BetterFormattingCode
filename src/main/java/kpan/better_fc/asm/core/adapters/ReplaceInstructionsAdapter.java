@@ -32,8 +32,8 @@ public class ReplaceInstructionsAdapter extends MyMethodVisitor {
 	protected final boolean check(Instr instr) {
 		Instr instr2 = targets.get(holds.size());
 		instr2.solveLabel(this);
+		holds.add(instr);
 		if (instr.equals(instr2)) {
-			holds.add(instr);
 			if (holds.size() == targets.size()) {
 				visitAllInstructions();
 				holds.clear();
@@ -50,6 +50,7 @@ public class ReplaceInstructionsAdapter extends MyMethodVisitor {
 					return true;
 				}
 			}
+			holds.remove(holds.size() - 1);
 			flushVisits();
 			return false;
 		}

@@ -8,6 +8,7 @@ import bre.smoothfont.FontTextureManager;
 import bre.smoothfont.FontUtils;
 import bre.smoothfont.GlyphImage;
 import bre.smoothfont.config.CommonConfig;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import kpan.better_fc.api.contexts.chara.MeasuringCharWidthContext;
 import kpan.better_fc.api.contexts.chara.PreparingContext;
 import kpan.better_fc.api.contexts.chara.RenderingCharContext;
@@ -20,6 +21,7 @@ import kpan.better_fc.asm.acc.ACC_FontRendererHook;
 import kpan.better_fc.asm.compat.CompatOptifine;
 import kpan.better_fc.asm.compat.CompatSmoothFont;
 import kpan.better_fc.compat.CompatFontRenderer;
+import kpan.better_fc.compat.CompatLineBreak;
 import kpan.better_fc.compat.smoothfont.CompatFontRenderer_SmoothFont;
 import kpan.better_fc.util.CharArrayRingList;
 import kpan.better_fc.util.ListUtil;
@@ -859,50 +861,59 @@ public class RenderFontUtil {
 			float currentWidth = splitArgs.currentWidth;
 			boolean newLineIfNoSpace = splitArgs.newLineIfNoSpace;
 			int startIndex = 0;
-			int whiteSpaceIdx = -1;
+			int breakableIdx = -1;
+			IntSet breakIndices = CompatLineBreak.phraseIndices(text);
 			for (int i = 0; i < text.length(); i++) {
 				char ch = text.charAt(i);
 				if (ch == '\n') {
 					list.add(buffered + text.substring(startIndex, i));
 					startIndex = i + 1;
+					breakableIdx = -1;
 					currentWidth = 0;
 					buffered.setLength(0);
 					if (keepFormatting)
 						buffered.append(prevFormat);
 				} else if (ch == ' ') {
-					whiteSpaceIdx = i;
+					if (i > startIndex)
+						breakableIdx = i;
 				} else {
+					if (i > startIndex && CompatLineBreak.canBreak(text.charAt(i - 1), ch, i, breakIndices))
+						breakableIdx = i;
 					float w = getCharWidthWithSpace(fontRenderer, ch, effects);
-					if (currentWidth + w > wrapWidth) {
-						if (whiteSpaceIdx == -1 && newLineIfNoSpace) {
-							//空白が無いので全て次の行に持っていく
-							list.add("");
-							currentWidth -= splitArgs.beforeWidth;
-							newLineIfNoSpace = false;
-							if (currentWidth + w <= wrapWidth) {
-								currentWidth += w;
-								continue;
-							}
-						}
-						currentWidth = 0;
-						if (whiteSpaceIdx == -1) {
-							list.add(buffered + text.substring(startIndex, i) + StringUtils.join(ListUtil.descendingIteratorOf(closeMarkerStack), ""));
-							startIndex = i;//i番目の文字を含む
-						} else {
-							list.add(buffered + text.substring(startIndex, whiteSpaceIdx) + StringUtils.join(ListUtil.descendingIteratorOf(closeMarkerStack), ""));
-							if (removeWhiteSpace) {
-								startIndex = whiteSpaceIdx + 1;//空白を含めない
-							} else {
-								startIndex = whiteSpaceIdx;
-								currentWidth += getCharWidthRaw(fontRenderer, ' ');
-							}
-							whiteSpaceIdx = -1;
-						}
-						buffered.setLength(0);
-						if (keepFormatting)
-							buffered.append(prevFormat);
+					if (currentWidth + w <= wrapWidth) {
+						currentWidth += w;
+						continue;
 					}
-					currentWidth += w;
+					if (breakableIdx == -1 && newLineIfNoSpace) {
+						//改行できる場所が無いので全て次の行に持っていく
+						list.add("");
+						currentWidth -= splitArgs.beforeWidth;
+						newLineIfNoSpace = false;
+						if (currentWidth + w <= wrapWidth) {
+							currentWidth += w;
+							continue;
+						}
+					}
+					if (breakableIdx == -1) {
+						list.add(buffered + text.substring(startIndex, i) + StringUtils.join(ListUtil.descendingIteratorOf(closeMarkerStack), ""));
+						startIndex = i;//i番目の文字を含む
+						currentWidth = w;
+					} else {
+						list.add(buffered + text.substring(startIndex, breakableIdx) + StringUtils.join(ListUtil.descendingIteratorOf(closeMarkerStack), ""));
+						if (removeWhiteSpace && text.charAt(breakableIdx) == ' ') {
+							startIndex = breakableIdx + 1;//空白を含めない
+							currentWidth = 0;
+							i = breakableIdx;//読み込み位置は空白の直後(i++含めて)に戻す
+						} else {
+							startIndex = breakableIdx;
+							currentWidth = 0;
+							i = breakableIdx - 1;//読み込み位置は改行位置(i++含めて)に戻す
+						}
+						breakableIdx = -1;
+					}
+					buffered.setLength(0);
+					if (keepFormatting)
+						buffered.append(prevFormat);
 				}
 			}
 			if (startIndex < text.length())

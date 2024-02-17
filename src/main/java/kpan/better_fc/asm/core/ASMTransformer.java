@@ -27,6 +27,7 @@ import kpan.better_fc.asm.tf.TF_Render;
 import kpan.better_fc.asm.tf.TF_TeleportToTeam$TeamSelectionObject;
 import kpan.better_fc.asm.tf.TF_TextFormatting;
 import kpan.better_fc.asm.tf.TF_TileEntitySignRenderer;
+import kpan.better_fc.asm.tf.gtceu.TF_ClipboardBehavior;
 import kpan.better_fc.asm.tf.gtceu.TF_TextFieldWidget2;
 import kpan.better_fc.util.MyReflectionHelper;
 import net.minecraft.launchwrapper.IClassTransformer;
@@ -103,6 +104,7 @@ public class ASMTransformer implements IClassTransformer {
 			cv = TF_TextFormatting.appendVisitor(cv, transformedName);
 			cv = TF_TileEntitySignRenderer.appendVisitor(cv, transformedName);
 			//gtceu
+			cv = TF_ClipboardBehavior.appendVisitor(cv, transformedName);
 			cv = TF_TextFieldWidget2.appendVisitor(cv, transformedName);
 
 			if (cv == cw)
