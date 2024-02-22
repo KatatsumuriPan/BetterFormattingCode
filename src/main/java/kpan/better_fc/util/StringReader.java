@@ -121,7 +121,9 @@ public class StringReader {
 		int index = string.indexOf('"', cursor);
 		if (index == -1)
 			return null;
-		return readTo(index + 1);
+		String res = readTo(index);
+		skip();
+		return res;
 	}
 	public String readStr(Predicate<Character> filter) {
 		int start = cursor;
