@@ -1,5 +1,9 @@
 # Changelog
 
+### [1.12.2-forge-2.2.1](https://github.com/KatatsumuriPan/BetterFormattingCode/releases/tag/1.12.2-forge-2.2.1) - 2024-02-22
+
+- Fix resetting config bug.
+
 ### [1.12.2-forge-2.2.0](https://github.com/KatatsumuriPan/BetterFormattingCode/releases/tag/1.12.2-forge-2.2.0) - 2024-02-17
 
 - Add Better Line Break compatibility.
