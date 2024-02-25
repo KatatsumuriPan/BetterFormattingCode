@@ -1,14 +1,12 @@
 package kpan.better_fc.api;
 
+import java.util.HashMap;
+import java.util.Map;
 import kpan.better_fc.api.contexts.string.GetEffectsContext;
 import kpan.better_fc.api.contexts.string.MeasuringStringWidthContext;
 import kpan.better_fc.api.contexts.string.RenderingStringContext;
 import kpan.better_fc.util.StringReader;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class FormattingCodeSimple implements IFormattingCode {
 
@@ -16,7 +14,7 @@ public abstract class FormattingCodeSimple implements IFormattingCode {
 
 	protected FormattingCodeSimple(String formattingCode) { this.formattingCode = formattingCode; }
 
-	protected abstract void applyFormat(Collection<IRenderingCharEffect> effects, String option);
+	protected abstract void applyFormat(RenderingEffects effects, String option);
 
 	@Override
 	public void applyFormat(RenderingStringContext context, String option) {

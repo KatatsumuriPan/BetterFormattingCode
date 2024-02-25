@@ -2,8 +2,7 @@ package kpan.better_fc.implementations.formattingcode.vanilla;
 
 import kpan.better_fc.api.FormattingCodeSimple;
 import kpan.better_fc.api.IRenderingCharEffect;
-
-import java.util.Collection;
+import kpan.better_fc.api.RenderingEffects;
 
 public class FormattingCodeFancyStyle extends FormattingCodeSimple {
 
@@ -19,8 +18,7 @@ public class FormattingCodeFancyStyle extends FormattingCodeSimple {
 		return true;
 	}
 	@Override
-	protected void applyFormat(Collection<IRenderingCharEffect> effects, String option) {
-		if (!effects.contains(effect))
-			effects.add(effect);
+	protected void applyFormat(RenderingEffects effects, String option) {
+		effects.add(effect);
 	}
 }

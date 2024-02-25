@@ -9,6 +9,13 @@ import bre.smoothfont.FontUtils;
 import bre.smoothfont.GlyphImage;
 import bre.smoothfont.config.CommonConfig;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.List;
+import javax.annotation.Nullable;
 import kpan.better_fc.api.contexts.chara.MeasuringCharWidthContext;
 import kpan.better_fc.api.contexts.chara.PreparingContext;
 import kpan.better_fc.api.contexts.chara.RenderingCharContext;
@@ -39,15 +46,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
-import javax.annotation.Nullable;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.List;
-
 public class RenderFontUtil {
 
 	public static final float FONT_HEIGHT = 9;
@@ -60,15 +58,19 @@ public class RenderFontUtil {
 	public static final List<IRenderingCharEffect> appliedEffects = new ArrayList<>();
 	public static boolean isEditMode = false;
 
-	public static List<IRenderingCharEffect> getValidDisplayEffects() {
+	public static RenderingEffects getValidDisplayEffects() {
 		if (validDisplay == null)
-			validDisplay = new ArrayList<>(getEffects(getValidDisplayStr()));
-		return validDisplay;
+			validDisplay = new ArrayList<>(getEffects(getValidDisplayStr()).getEffects());
+		RenderingEffects effects = new RenderingEffects();
+		effects.addAll(validDisplay);
+		return effects;
 	}
-	public static List<IRenderingCharEffect> getInvalidDisplayEffects() {
+	public static RenderingEffects getInvalidDisplayEffects() {
 		if (invalidDisplay == null)
-			invalidDisplay = new ArrayList<>(getEffects(getInvalidDisplayStr()));
-		return invalidDisplay;
+			invalidDisplay = new ArrayList<>(getEffects(getInvalidDisplayStr()).getEffects());
+		RenderingEffects effects = new RenderingEffects();
+		effects.addAll(invalidDisplay);
+		return effects;
 	}
 	public static String getValidDisplayStr() {
 		return validDisplayStr;
@@ -274,7 +276,7 @@ public class RenderFontUtil {
 					if (context.isEdit)
 						context.posX += renderChar(context, '§', context.posX, context.posY, getInvalidDisplayEffects());
 					else
-						context.posX += renderChar(context, '§', context.posX, context.posY, Collections.emptyList());
+						context.posX += renderChar(context, '§', context.posX, context.posY, RenderingEffects.EMPTY);
 				}
 				case ESCAPED_SECTION_SIGN -> {
 					if (beginIndex >= wholeEndIndexExcl)
@@ -316,7 +318,7 @@ public class RenderFontUtil {
 					}
 				}
 				case FORMATTING_RANGE, FORMATTING_RANGE_UNTERMINATED -> {
-					Collection<IRenderingCharEffect> effects_before = new ArrayList<>(context.effects);
+					Collection<IRenderingCharEffect> effects_before = new ArrayList<>(context.effects.getEffects());
 					if (context.isEdit) {
 						GlStateManager.color(context.fontRenderer.red, context.fontRenderer.green, context.fontRenderer.blue, context.fontRenderer.alpha);
 						for (int i = Math.max(beginIndex, wholeBeginIndex); i < beginIndex + 1 + markerNum; i++) {
@@ -398,7 +400,7 @@ public class RenderFontUtil {
 					if (context.isEdit)
 						w = getCharWidthWithSpace(context.fontRenderer, '§', getInvalidDisplayEffects());
 					else
-						w = getCharWidthWithSpace(context.fontRenderer, '§', Collections.emptyList());
+						w = getCharWidthWithSpace(context.fontRenderer, '§', RenderingEffects.EMPTY);
 					if (currentWidth + w > limitWidthIncl)
 						return new MeasuringResult(currentWidth, beginIndex);
 					currentWidth += w;
@@ -466,7 +468,7 @@ public class RenderFontUtil {
 					}
 				}
 				case FORMATTING_RANGE, FORMATTING_RANGE_UNTERMINATED -> {
-					Collection<IRenderingCharEffect> effects_before = new ArrayList<>(context.effects);
+					Collection<IRenderingCharEffect> effects_before = new ArrayList<>(context.effects.getEffects());
 					if (context.isEdit) {
 						for (int i = Math.max(beginIndex, wholeBeginIndex); i < beginIndex + 1 + markerNum; i++) {
 							if (i >= wholeEndIndexExcl)
@@ -547,7 +549,7 @@ public class RenderFontUtil {
 					if (context.isEdit)
 						w = getCharWidthWithSpace(context.fontRenderer, '§', getInvalidDisplayEffects());
 					else
-						w = getCharWidthWithSpace(context.fontRenderer, '§', Collections.emptyList());
+						w = getCharWidthWithSpace(context.fontRenderer, '§', RenderingEffects.EMPTY);
 					widths[beginIndex] = w;
 				}
 				case ESCAPED_SECTION_SIGN -> {
@@ -597,7 +599,7 @@ public class RenderFontUtil {
 					}
 				}
 				case FORMATTING_RANGE, FORMATTING_RANGE_UNTERMINATED -> {
-					Collection<IRenderingCharEffect> effects_before = new ArrayList<>(context.effects);
+					Collection<IRenderingCharEffect> effects_before = new ArrayList<>(context.effects.getEffects());
 					if (context.isEdit) {
 						for (int i = beginIndex; i < beginIndex + 1 + markerNum; i++) {
 							float w = getCharWidthWithSpace(context.fontRenderer, context.originalText.charAt(i), getValidDisplayEffects());
@@ -683,7 +685,7 @@ public class RenderFontUtil {
 				next.removeFormat(sb, context);
 		}
 
-		public static Collection<IRenderingCharEffect> getEffects(String text) {
+		public static RenderingEffects getEffects(String text) {
 			GetEffectsContext context = new GetEffectsContext(text, isEditMode);
 			parse(context.originalText).getEffects(context);
 			return context.effects;
@@ -736,7 +738,7 @@ public class RenderFontUtil {
 						sb.append(context.originalText, beginIndex, endIndexExcl);
 				}
 				case FORMATTING_RANGE, FORMATTING_RANGE_UNTERMINATED -> {
-					Collection<IRenderingCharEffect> effects_before = new ArrayList<>(context.effects);
+					Collection<IRenderingCharEffect> effects_before = new ArrayList<>(context.effects.getEffects());
 					sb.append('§');
 					sb.append(StringUtils.repeat('{', markerNum));
 					if (component != null)
@@ -753,16 +755,9 @@ public class RenderFontUtil {
 		@Nullable
 		private static Character prepareFix(FixingContext context, char ch) {
 			PreparingContext prepare = new PreparingContext(context.fontRenderer, ch, context.isEdit, true, context.originalText, context.tryGetRingList(), context.effects);
-			boolean cancelled = false;
-			for (IRenderingCharEffect effect : context.effects) {
-				cancelled = effect.prepare(prepare);
-				if (cancelled)
-					break;
-			}
+			boolean cancelled = context.effects.prepare(prepare);
 			if (cancelled) {
-				for (IRenderingCharEffect effect : new ArrayList<>(context.effects)) {
-					effect.onFixingCancelled(context, ch);
-				}
+				context.effects.onFixingCancelled(context, ch);
 				return null;
 			}
 			return ch;
@@ -820,7 +815,7 @@ public class RenderFontUtil {
 						splitArgs.prevFormat.append(StringUtils.repeat('{', markerNum));
 						splitArgs.closeMarkerStack.add(StringUtils.repeat('}', markerNum));
 					}
-					Collection<IRenderingCharEffect> effects_before = new ArrayList<>(context.effects);
+					Collection<IRenderingCharEffect> effects_before = new ArrayList<>(context.effects.getEffects());
 					if (context.isEdit) {
 						String text = context.originalText.substring(beginIndex, beginIndex + 1 + markerNum);
 						splitString(splitArgs, text, getValidDisplayEffects());
@@ -833,7 +828,7 @@ public class RenderFontUtil {
 					} else {
 						String text = context.originalText.substring(beginIndex, beginIndex + 1 + markerNum);
 						if (type == Type.FORMATTING_RANGE_UNTERMINATED) {
-							splitString(splitArgs, "§{" + TextFormatting.RESET + getValidDisplayStr() + "§" + text + "}", Collections.emptyList());
+							splitString(splitArgs, "§{" + TextFormatting.RESET + getValidDisplayStr() + "§" + text + "}", RenderingEffects.EMPTY);
 						}
 						splitArgs.buffered.append(text);
 						if (component != null)
@@ -849,7 +844,7 @@ public class RenderFontUtil {
 			if (next != null)
 				next.split(splitArgs);
 		}
-		private static void splitString(SplitArgs splitArgs, String text, Collection<IRenderingCharEffect> effects) {
+		private static void splitString(SplitArgs splitArgs, String text, RenderingEffects effects) {
 			List<String> list = splitArgs.resultList;
 			FontRenderer fontRenderer = splitArgs.context.fontRenderer;
 			float wrapWidth = splitArgs.wrapWidth;
@@ -964,7 +959,7 @@ public class RenderFontUtil {
 	public static float renderRawString(FontRenderer fontRenderer, String text, float posX, float posY, boolean asShadow) {
 		RenderingStringContext context = new RenderingStringContext(fontRenderer, text, posX, posY, true, asShadow, GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING));
 		for (int i = 0; i < text.length(); i++) {
-			context.posX += renderChar(context, context.originalText.charAt(i), context.posX, context.posY, Collections.emptyList());
+			context.posX += renderChar(context, context.originalText.charAt(i), context.posX, context.posY, RenderingEffects.EMPTY);
 		}
 		context.onRenderEnd();
 		return context.posX;
@@ -978,7 +973,7 @@ public class RenderFontUtil {
 	//	public static float renderChar(FontRenderer fontRenderer, char ch, float posX, float posY, Collection<IRenderingCharEffect> effects, boolean asShadow) {
 //		return renderChar(fontRenderer, ch, posX, posY, effects, asShadow, false, GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING));
 //	}
-	private static float renderChar(RenderingStringContext stringContext, char ch, float posX, float posY, Iterable<IRenderingCharEffect> effects) {
+	private static float renderChar(RenderingStringContext stringContext, char ch, float posX, float posY, RenderingEffects effects) {
 		if (ch == 0)
 			return 0;
 		RenderingCharContext charContext;
@@ -989,9 +984,8 @@ public class RenderFontUtil {
 		} else {
 			charContext = createContextNormal(stringContext, ch, posX, posY);
 		}
-		for (IRenderingCharEffect effect : effects) {
-			effect.preRender(charContext);
-		}
+
+		effects.preRender(charContext);
 
 		//render!
 		if (!RenderFontUtil.isSpace(ch)) {
@@ -1003,9 +997,7 @@ public class RenderFontUtil {
 					charContext.posX + charContext.renderRightBottomX, charContext.posY + charContext.renderRightBottomY, charContext.renderRightBottomZ);//rightBottom
 		}
 
-		for (IRenderingCharEffect effect : effects) {
-			effect.postRender(charContext);
-		}
+		effects.postRender(charContext);
 
 		return charContext.nextRenderXOffset;
 	}
@@ -1024,19 +1016,9 @@ public class RenderFontUtil {
 	}
 	private static float prepareAndRenderChar(RenderingStringContext context, char ch) {
 		PreparingContext prepare = new PreparingContext(context.fontRenderer, ch, context.isEdit, true, context.originalText, context.tryGetRingList(), context.effects);
-		boolean cancelled = false;
-		for (IRenderingCharEffect effect : context.effects) {
-			cancelled = effect.prepare(prepare);
-			if (cancelled)
-				break;
-		}
-		if (cancelled) {
-			float width = 0;
-			for (IRenderingCharEffect effect : new ArrayList<>(context.effects)) {
-				width = effect.onRenderingCancelled(context, ch, width);
-			}
-			return width;
-		}
+		boolean cancelled = context.effects.prepare(prepare);
+		if (cancelled)
+			return context.effects.onRenderingCancelled(context, ch);
 
 		return renderChar(context, prepare.charToRender, context.posX, context.posY, context.effects);
 	}
@@ -1098,7 +1080,7 @@ public class RenderFontUtil {
 	public static float getRawStringWidthFloat(FontRenderer fontRenderer, String text) {
 		float total_width = 0;
 		for (int i = 0; i < text.length(); i++) {
-			total_width += getCharWidthWithSpace(fontRenderer, text.charAt(i), Collections.emptyList());
+			total_width += getCharWidthWithSpace(fontRenderer, text.charAt(i), RenderingEffects.EMPTY);
 		}
 		return total_width;
 	}
@@ -1110,17 +1092,12 @@ public class RenderFontUtil {
 		context.effects.addAll(appliedEffects);
 		return FormattedStringObject.parse(text).measure(context, beginIndex, endIndex, Float.POSITIVE_INFINITY).totalWidth;
 	}
-	public static float getCharWidthWithSpace(FontRenderer fontRenderer, char ch, Collection<IRenderingCharEffect> effects) {
+	public static float getCharWidthWithSpace(FontRenderer fontRenderer, char ch, RenderingEffects effects) {
 		if (ch == 0)
 			return 0;
 		float char_width = getCharWidthRaw(fontRenderer, ch);
 		MeasuringCharWidthContext context = new MeasuringCharWidthContext(fontRenderer, ch, char_width, CHAR_HEIGHT);
-		for (IRenderingCharEffect effect : effects) {
-			effect.first(context);
-		}
-		for (IRenderingCharEffect effect : effects) {
-			effect.second(context);
-		}
+		effects.measure(context);
 		return context.charWidthWithSpace;
 	}
 	/***
@@ -1139,19 +1116,9 @@ public class RenderFontUtil {
 	}
 	private static float prepareAndGetCharWidth(MeasuringStringWidthContext context, char ch) {
 		PreparingContext prepare = new PreparingContext(context.fontRenderer, ch, context.isEdit, false, context.originalText, context.tryGetRingList(), context.effects);
-		boolean cancelled = false;
-		for (IRenderingCharEffect effect : context.effects) {
-			cancelled = effect.prepare(prepare);
-			if (cancelled)
-				break;
-		}
-		if (cancelled) {
-			float width = 0;
-			for (IRenderingCharEffect effect : new ArrayList<>(context.effects)) {
-				width = effect.onMeasuringCancelled(context, ch, width);
-			}
-			return width;
-		}
+		boolean cancelled = context.effects.prepare(prepare);
+		if (cancelled)
+			return context.effects.onMeasuringCancelled(context, ch);
 		return getCharWidthWithSpace(context.fontRenderer, prepare.charToRender, context.effects);
 	}
 
@@ -1167,7 +1134,7 @@ public class RenderFontUtil {
 			float total_width = 0;
 			for (int i = 0; i < text.length(); i++) {
 				char c0 = text.charAt(i);
-				total_width += getCharWidthWithSpace(fontRenderer, c0, Collections.emptyList());
+				total_width += getCharWidthWithSpace(fontRenderer, c0, RenderingEffects.EMPTY);
 				if (total_width > width) {
 					return text.substring(0, i);//今見た文字は含まれない
 				}
@@ -1177,7 +1144,7 @@ public class RenderFontUtil {
 			float total_width = 0;
 			for (int i = text.length() - 1; i >= 0; i--) {
 				char c0 = text.charAt(i);
-				total_width += getCharWidthWithSpace(fontRenderer, c0, Collections.emptyList());
+				total_width += getCharWidthWithSpace(fontRenderer, c0, RenderingEffects.EMPTY);
 				if (total_width > width)
 					return text.substring(i + 1);//今見た文字は含まない
 			}
@@ -1229,9 +1196,9 @@ public class RenderFontUtil {
 	}
 
 	//getEffects
-	public static Collection<IRenderingCharEffect> getEffects(String text) {
+	public static RenderingEffects getEffects(String text) {
 		if (text.isEmpty())
-			return Collections.emptyList();
+			return new RenderingEffects();
 		return FormattedStringObject.getEffects(text);
 	}
 
@@ -1369,6 +1336,9 @@ public class RenderFontUtil {
 	}
 
 	//getColor
+	public static int getColor(FontRenderer fontRenderer, RenderingEffects effects) {
+		return getColor(fontRenderer, effects.getEffects());
+	}
 	public static int getColor(FontRenderer fontRenderer, Collection<IRenderingCharEffect> effects) {
 		int color = -1;
 		for (IRenderingCharEffect effect : effects) {
