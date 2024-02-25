@@ -43,6 +43,6 @@ public class RenderingEffectUnderline implements IRenderingEffectFancyStyle {
 	}
 
 	@Override
-	public int priority() { return -100000; }
+	public int priority() { return 100000; }
 
 }

@@ -24,7 +24,7 @@ public interface IRenderingCharEffect {
 	default float onMeasuringCancelled(MeasuringStringWidthContext context, char ch, float width) { return width; }
 	default void onFixingCancelled(FixingContext context, char ch) { }
 
-	// higher -> earlier
+	// higher -> earlier (inverted on postRender)
 	int priority();
 
 	Comparator<IRenderingCharEffect> COMPARATOR = Comparator.comparingInt(IRenderingCharEffect::priority).reversed();

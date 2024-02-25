@@ -47,7 +47,7 @@ public class RenderingEffects {
 	}
 
 	public void postRender(RenderingCharContext charContext) {
-		for (IRenderingCharEffect effect : effects) {
+		for (IRenderingCharEffect effect : effects.descendingSet()) {
 			effect.postRender(charContext);
 		}
 	}

@@ -49,4 +49,8 @@ public abstract class RenderingEffectStencilText implements IRenderingEffectColo
 
 	}
 
+	// this should be higher
+	@Override
+	public abstract int priority();
+
 }

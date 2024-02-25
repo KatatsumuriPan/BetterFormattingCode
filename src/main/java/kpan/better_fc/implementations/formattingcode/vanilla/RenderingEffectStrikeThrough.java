@@ -43,6 +43,6 @@ public class RenderingEffectStrikeThrough implements IRenderingEffectFancyStyle 
 	}
 
 	@Override
-	public int priority() { return -90000; }
+	public int priority() { return 90000; }
 
 }

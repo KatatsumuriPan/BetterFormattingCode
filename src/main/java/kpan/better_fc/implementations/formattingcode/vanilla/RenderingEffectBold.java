@@ -22,7 +22,7 @@ public class RenderingEffectBold implements IRenderingEffectFancyStyle {
 		context.charWidthWithSpace += 1;//optifineのoffsetBoldは無視する
 	}
 	@Override
-	public int priority() { return 90000; }
+	public int priority() { return 80000; }
 
 	public static void renderBold(RenderingCharContext context) {
 		if (!RenderFontUtil.isSpace(context.charToRender)) {
