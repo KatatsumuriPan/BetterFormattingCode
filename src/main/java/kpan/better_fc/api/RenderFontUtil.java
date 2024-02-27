@@ -1387,28 +1387,37 @@ public class RenderFontUtil {
 		}
 	}
 	public static float drawStringWithShadow(FontRenderer fontRenderer, String text, float x, float y, int color) {
+		long seed = fontRenderer.fontRandom.nextLong();
 		GlStateManager.enableAlpha();
+		fontRenderer.fontRandom.setSeed(seed);
 		setColorAsDefault(color, true, fontRenderer);
 		float x1 = renderString(fontRenderer, text, x + 1.0F, y + 1.0F, true);
 
+		fontRenderer.fontRandom.setSeed(seed);
 		setColorAsDefault(color, false, fontRenderer);
 		float x2 = renderString(fontRenderer, text, x, y, false);
 		return Math.max(x1, x2);
 	}
 	public static float drawRawStringWithShadow(FontRenderer fontRenderer, String text, float x, float y, int color) {
+		long seed = fontRenderer.fontRandom.nextLong();
 		GlStateManager.enableAlpha();
+		fontRenderer.fontRandom.setSeed(seed);
 		setColorAsDefault(color, true, fontRenderer);
 		float x1 = renderRawString(fontRenderer, text, x + 1.0F, y + 1.0F, true);
 
+		fontRenderer.fontRandom.setSeed(seed);
 		setColorAsDefault(color, false, fontRenderer);
 		float x2 = renderRawString(fontRenderer, text, x, y, false);
 		return Math.max(x1, x2);
 	}
 	public static float drawSubStringWithShadow(FontRenderer fontRenderer, String text, int beginIndex, int endIndex, float x, float y, int color) {
+		long seed = fontRenderer.fontRandom.nextLong();
 		GlStateManager.enableAlpha();
+		fontRenderer.fontRandom.setSeed(seed);
 		setColorAsDefault(color, true, fontRenderer);
 		float x1 = renderSubString(fontRenderer, text, beginIndex, endIndex, x + 1.0F, y + 1.0F, true);
 
+		fontRenderer.fontRandom.setSeed(seed);
 		setColorAsDefault(color, false, fontRenderer);
 		float x2 = renderSubString(fontRenderer, text, beginIndex, endIndex, x, y, false);
 		return Math.max(x1, x2);
