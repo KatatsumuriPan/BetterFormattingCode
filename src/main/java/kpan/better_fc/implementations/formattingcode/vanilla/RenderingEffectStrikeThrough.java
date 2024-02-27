@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import org.lwjgl.opengl.GL11;
 
 public class RenderingEffectStrikeThrough implements IRenderingEffectFancyStyle {
 
@@ -29,7 +30,7 @@ public class RenderingEffectStrikeThrough implements IRenderingEffectFancyStyle 
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder bufferbuilder = tessellator.getBuffer();
 			GlStateManager.disableTexture2D();
-			bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
+			bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 			bufferbuilder.pos(left_x, y, left_z).endVertex();
 			bufferbuilder.pos(right_x, y, right_z).endVertex();
 			bufferbuilder.pos(right_x, y - 1.0F, right_z).endVertex();
