@@ -95,10 +95,10 @@ public class RenderingEffects {
 	public void beginBatchStencilColor(RenderingStringContext context) {
 		if (context.asShadow)
 			return;
-		RenderingEffectStencilText effect = null;
+		RenderingEffectStencilColor effect = null;
 		for (IRenderingCharEffect e : context.effects.effects) {
-			if (e instanceof RenderingEffectStencilText)
-				effect = (RenderingEffectStencilText) e;
+			if (e instanceof RenderingEffectStencilColor)
+				effect = (RenderingEffectStencilColor) e;
 		}
 		if (effect == null)
 			return;
@@ -109,10 +109,10 @@ public class RenderingEffects {
 	public void endBatchStencilColor(RenderingStringContext context) {
 		if (context.asShadow)
 			return;
-		RenderingEffectStencilText effect = null;
+		RenderingEffectStencilColor effect = null;
 		for (IRenderingCharEffect e : context.effects.effects) {
-			if (e instanceof RenderingEffectStencilText)
-				effect = (RenderingEffectStencilText) e;
+			if (e instanceof RenderingEffectStencilColor)
+				effect = (RenderingEffectStencilColor) e;
 		}
 		if (effect == null)
 			return;

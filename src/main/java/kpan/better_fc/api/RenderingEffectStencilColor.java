@@ -14,10 +14,10 @@ import net.minecraft.client.shader.Framebuffer;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
-public abstract class RenderingEffectStencilText implements IRenderingEffectColor {
+public abstract class RenderingEffectStencilColor implements IRenderingEffectColor {
 
 	public final FormattingCodeStencilColor formattingCodeStencilColor;
-	protected RenderingEffectStencilText(FormattingCodeStencilColor formattingCodeStencilColor) {
+	protected RenderingEffectStencilColor(FormattingCodeStencilColor formattingCodeStencilColor) {
 		this.formattingCodeStencilColor = formattingCodeStencilColor;
 	}
 

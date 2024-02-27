@@ -10,11 +10,11 @@ public abstract class FormattingCodeStencilColor extends FormattingCodeSimple {
 		super(formattingCode);
 	}
 
-	protected abstract RenderingEffectStencilText getEffect(RenderingEffects effects, String option);
+	protected abstract RenderingEffectStencilColor getEffect(RenderingEffects effects, String option);
 
 	@Override
 	protected void applyFormat(RenderingEffects effects, String option) {
-		RenderingEffectStencilText effect = getEffect(effects, option);
+		RenderingEffectStencilColor effect = getEffect(effects, option);
 		effects.removeIf(e -> e instanceof IRenderingEffectColor);
 		effects.add(effect);
 	}
