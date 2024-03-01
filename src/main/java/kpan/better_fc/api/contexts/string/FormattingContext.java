@@ -1,16 +1,13 @@
 package kpan.better_fc.api.contexts.string;
 
-import kpan.better_fc.api.IRenderingCharEffect;
-import kpan.better_fc.util.SortedList;
-
-import java.util.Collection;
+import kpan.better_fc.api.RenderingEffects;
 
 public class FormattingContext {
 
 	public final String originalText;
 	public final boolean isEdit;
 
-	public final Collection<IRenderingCharEffect> effects = new SortedList<>(IRenderingCharEffect.COMPARATOR);
+	public final RenderingEffects effects = new RenderingEffects();
 
 	public FormattingContext(String text, boolean isEdit) {
 		originalText = text;

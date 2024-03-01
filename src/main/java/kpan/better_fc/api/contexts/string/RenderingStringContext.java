@@ -7,15 +7,16 @@ import bre.smoothfont.RenderCharReplacedChecker;
 import bre.smoothfont.config.CommonConfig;
 import bre.smoothfont.config.GlobalConfig;
 import bre.smoothfont.util.ModLib;
-import kpan.better_fc.api.IRenderingCharEffect;
+import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import kpan.better_fc.api.IStringRenderEndListener;
 import kpan.better_fc.api.RenderFontUtil;
+import kpan.better_fc.api.RenderingEffects;
 import kpan.better_fc.api.contexts.chara.RenderingCharContext;
 import kpan.better_fc.asm.acc.ACC_FontRendererHook;
 import kpan.better_fc.asm.compat.CompatSmoothFont;
 import kpan.better_fc.compat.smoothfont.CompatFontRenderer_SmoothFont;
 import kpan.better_fc.util.CharArrayRingList;
-import kpan.better_fc.util.SortedList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -23,10 +24,6 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
-
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.Collection;
 
 public class RenderingStringContext {
 
@@ -43,10 +40,12 @@ public class RenderingStringContext {
 	public float posX;
 	public float posY;
 
+	public boolean stencilColorPrepared = false;
+
 	@Nullable
 	private final CharArrayRingList ringList;
 
-	public final Collection<IRenderingCharEffect> effects = new SortedList<>(IRenderingCharEffect.COMPARATOR);
+	public final RenderingEffects effects = new RenderingEffects();
 	public final ArrayList<IStringRenderEndListener> listners = new ArrayList<>();
 
 	@Nullable

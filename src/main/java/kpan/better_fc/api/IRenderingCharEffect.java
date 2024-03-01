@@ -1,13 +1,12 @@
 package kpan.better_fc.api;
 
+import java.util.Comparator;
 import kpan.better_fc.api.contexts.chara.MeasuringCharWidthContext;
 import kpan.better_fc.api.contexts.chara.PreparingContext;
 import kpan.better_fc.api.contexts.chara.RenderingCharContext;
 import kpan.better_fc.api.contexts.string.FixingContext;
 import kpan.better_fc.api.contexts.string.MeasuringStringWidthContext;
 import kpan.better_fc.api.contexts.string.RenderingStringContext;
-
-import java.util.Comparator;
 
 public interface IRenderingCharEffect {
 	default boolean prepare(PreparingContext context) { return false; }
@@ -25,6 +24,7 @@ public interface IRenderingCharEffect {
 	default float onMeasuringCancelled(MeasuringStringWidthContext context, char ch, float width) { return width; }
 	default void onFixingCancelled(FixingContext context, char ch) { }
 
+	// higher -> earlier (inverted on postRender)
 	int priority();
 
 	Comparator<IRenderingCharEffect> COMPARATOR = Comparator.comparingInt(IRenderingCharEffect::priority).reversed();

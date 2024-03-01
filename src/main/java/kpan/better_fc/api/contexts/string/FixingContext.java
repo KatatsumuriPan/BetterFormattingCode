@@ -1,12 +1,9 @@
 package kpan.better_fc.api.contexts.string;
 
-import kpan.better_fc.api.IRenderingCharEffect;
+import kpan.better_fc.api.RenderingEffects;
 import kpan.better_fc.util.CharArrayRingList;
-import kpan.better_fc.util.SortedList;
 import net.minecraft.client.gui.FontRenderer;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 
 public class FixingContext {
 
@@ -16,7 +13,7 @@ public class FixingContext {
 	public final boolean isEdit;
 
 	private final CharArrayRingList ringList = new CharArrayRingList();
-	public final Collection<IRenderingCharEffect> effects = new SortedList<>(IRenderingCharEffect.COMPARATOR);
+	public final RenderingEffects effects = new RenderingEffects();
 
 	public FixingContext(FontRenderer fontRenderer, String text, boolean isEdit) {
 		this.fontRenderer = fontRenderer;

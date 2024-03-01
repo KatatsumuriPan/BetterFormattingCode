@@ -16,7 +16,7 @@ public class RenderingEffectItalic implements IRenderingEffectFancyStyle {
 	}
 
 	@Override
-	public int priority() { return 80000; }
+	public int priority() { return 70000; }
 
 	public static void renderItalic(RenderingCharContext context) {
 		if (!RenderFontUtil.isSpace(context.charToRender)) {

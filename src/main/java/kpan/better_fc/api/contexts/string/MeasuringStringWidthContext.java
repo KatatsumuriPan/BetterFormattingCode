@@ -1,12 +1,9 @@
 package kpan.better_fc.api.contexts.string;
 
-import kpan.better_fc.api.IRenderingCharEffect;
+import kpan.better_fc.api.RenderingEffects;
 import kpan.better_fc.util.CharArrayRingList;
-import kpan.better_fc.util.SortedList;
 import net.minecraft.client.gui.FontRenderer;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 
 public class MeasuringStringWidthContext {
 
@@ -17,7 +14,7 @@ public class MeasuringStringWidthContext {
 
 	@Nullable
 	private final CharArrayRingList ringList;
-	public final Collection<IRenderingCharEffect> effects = new SortedList<>(IRenderingCharEffect.COMPARATOR);
+	public final RenderingEffects effects = new RenderingEffects();
 
 	public MeasuringStringWidthContext(FontRenderer fontRenderer, String text, boolean isEdit) {
 		this.fontRenderer = fontRenderer;

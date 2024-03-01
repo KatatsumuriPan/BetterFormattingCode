@@ -1,11 +1,9 @@
 package kpan.better_fc.api.contexts.chara;
 
-import kpan.better_fc.api.IRenderingCharEffect;
+import kpan.better_fc.api.RenderingEffects;
 import kpan.better_fc.util.CharArrayRingList;
 import net.minecraft.client.gui.FontRenderer;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 
 public class PreparingContext {
 
@@ -18,9 +16,9 @@ public class PreparingContext {
 	public final String originalText;
 	@Nullable
 	private final CharArrayRingList ringList;
-	public final Collection<IRenderingCharEffect> effects;
+	public final RenderingEffects effects;
 
-	public PreparingContext(FontRenderer fontRenderer, char charToRender, boolean isEdit, boolean isRendering, String originalText, @Nullable CharArrayRingList ringList, Collection<IRenderingCharEffect> effects) {
+	public PreparingContext(FontRenderer fontRenderer, char charToRender, boolean isEdit, boolean isRendering, String originalText, @Nullable CharArrayRingList ringList, RenderingEffects effects) {
 		this.fontRenderer = fontRenderer;
 		this.charToRender = charToRender;
 		this.isEdit = isEdit;

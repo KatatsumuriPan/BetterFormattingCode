@@ -1,9 +1,7 @@
 package kpan.better_fc.implementations.formattingcode.vanilla;
 
 import kpan.better_fc.api.FormattingCodeSimple;
-import kpan.better_fc.api.IRenderingCharEffect;
-
-import java.util.Collection;
+import kpan.better_fc.api.RenderingEffects;
 
 public class FormattingCodeReset extends FormattingCodeSimple {
 
@@ -19,7 +17,7 @@ public class FormattingCodeReset extends FormattingCodeSimple {
 		return true;
 	}
 	@Override
-	protected void applyFormat(Collection<IRenderingCharEffect> effects, String option) {
+	protected void applyFormat(RenderingEffects effects, String option) {
 		effects.clear();
 	}
 

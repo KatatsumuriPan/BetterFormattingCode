@@ -1,14 +1,12 @@
 package kpan.better_fc.implementations.formattingcode.vanilla;
 
 import kpan.better_fc.api.FormattingCodeSimple;
-import kpan.better_fc.api.IRenderingCharEffect;
 import kpan.better_fc.api.IRenderingEffectColor;
 import kpan.better_fc.api.IRenderingEffectFancyStyle;
+import kpan.better_fc.api.RenderingEffects;
 import kpan.better_fc.api.contexts.string.GetEffectsContext;
 import kpan.better_fc.api.contexts.string.RenderingStringContext;
 import net.minecraft.util.text.TextFormatting;
-
-import java.util.Collection;
 
 public class FormattingCodeColor extends FormattingCodeSimple {
 
@@ -25,7 +23,7 @@ public class FormattingCodeColor extends FormattingCodeSimple {
 		return true;
 	}
 	@Override
-	protected void applyFormat(Collection<IRenderingCharEffect> effects, String option) {
+	protected void applyFormat(RenderingEffects effects, String option) {
 		effects.removeIf(e -> e instanceof IRenderingEffectColor);
 		effects.removeIf(e -> e instanceof IRenderingEffectFancyStyle);
 	}

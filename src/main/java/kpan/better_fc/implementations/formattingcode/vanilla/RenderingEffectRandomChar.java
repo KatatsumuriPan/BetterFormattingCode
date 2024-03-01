@@ -1,11 +1,10 @@
 package kpan.better_fc.implementations.formattingcode.vanilla;
 
+import java.util.Random;
 import kpan.better_fc.api.IRenderingEffectFancyStyle;
 import kpan.better_fc.api.RenderFontUtil;
 import kpan.better_fc.api.contexts.chara.PreparingContext;
 import net.minecraft.client.gui.FontRenderer;
-
-import java.util.Random;
 
 public class RenderingEffectRandomChar implements IRenderingEffectFancyStyle {
 	public static final String RANDOM_CHARS = "ÀÁÂÈÊËÍÓÔÕÚßãõğİıŒœŞşŴŵžȇ\u0000\u0000\u0000\u0000\u0000\u0000\u0000 !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u0000ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƒáíóúñÑªº¿®¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αβΓπΣσμτΦΘΩδ∞∅∈∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\u0000";
