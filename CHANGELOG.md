@@ -1,5 +1,10 @@
 # Changelog
 
+### [1.12.2-forge-3.0.0](https://github.com/KatatsumuriPan/BetterFormattingCode/releases/tag/1.12.2-forge-3.0.0) - 2024-03-**
+
+- Make a lot of changes to the stencil-text api for optimization.
+- Fix the seed of the FontRenderer.fontRandom to match between normal and shadow.
+
 ### [1.12.2-forge-2.2.1](https://github.com/KatatsumuriPan/BetterFormattingCode/releases/tag/1.12.2-forge-2.2.1) - 2024-02-22
 
 - Fix resetting config bug.
